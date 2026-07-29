@@ -1,4 +1,4 @@
 // Toggle this flag to switch environments:
 // true  => connects to production (https://api.neosowinfra.com/api)
 // false => connects to local development (http://localhost:8080/api)
-export const isProduction = false;
+export const isProduction = true;
