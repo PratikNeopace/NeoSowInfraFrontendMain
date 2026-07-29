@@ -5,7 +5,7 @@
  * - true  => Production URL: https://api.neosowinfra.com/api
  * - false => Localhost URL:  http://localhost:8080/api
  */
-export const USE_PRODUCTION = false; // Change this to true to run on production URL
+export const USE_PRODUCTION = true; // Change this to true to run on production URL
 
 // Production API URL
 export const PRODUCTION_API_URL = 'https://api.neosowinfra.com/api';
