@@ -75,7 +75,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const baseURL = import.meta.env.VITE_API_BASE_URL || API_BASE_URL;
+      const baseURL = API_BASE_URL;
       const response = await axios.post(`${baseURL}/auth/login`, { email, password });
 
       if (rememberMe) {
