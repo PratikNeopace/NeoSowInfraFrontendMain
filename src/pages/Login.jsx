@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE_URL } from '../services/config';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
+      const baseURL = import.meta.env.VITE_API_BASE_URL || API_BASE_URL;
       const response = await axios.post(`${baseURL}/auth/login`, { email, password });
 
       if (rememberMe) {

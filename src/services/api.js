@@ -1,15 +1,8 @@
 import axios from 'axios';
-import { isProduction } from './config';
-
-const getBaseURL = () => {
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-  return isProduction ? 'https://api.neosowinfra.com/api' : 'http://localhost:8080/api';
-};
+import { API_BASE_URL } from './config';
 
 const API = axios.create({
-  baseURL: getBaseURL(),
+  baseURL: import.meta.env.VITE_API_BASE_URL || API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
