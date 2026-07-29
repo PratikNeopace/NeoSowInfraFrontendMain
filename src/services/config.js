@@ -5,7 +5,7 @@
  * - true  => Production URL: https://api.neosowinfra.com/api/v1
  * - false => Localhost URL:  http://localhost:8080/api/v1
  */
-export const isProduction = false; // Change this to true to run on production URL
+export const isProduction = true; // Change this to true to run on production URL
 
 // Production API URL (suffix with /v1 to match backend routes)
 export const PRODUCTION_API_URL = 'https://api.neosowinfra.com/api/v1';
