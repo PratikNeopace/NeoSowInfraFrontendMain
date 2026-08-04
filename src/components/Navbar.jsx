@@ -79,7 +79,7 @@ export default function Navbar() {
         <Link className="navbar-brand d-flex align-items-center text-decoration-none" to="/">
           {!logoError ? (
             <img 
-              src="/src/assets/logo.png" 
+              src="/src/assets/logo.svg" 
               alt="NEO SOW INFRA" 
               style={{ height: '38px', objectFit: 'contain' }} 
               onError={() => setLogoError(true)} 
