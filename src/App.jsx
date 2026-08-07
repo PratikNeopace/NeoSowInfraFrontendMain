@@ -8,6 +8,7 @@ import CustomerDetails from './pages/CustomerDetails';
 import QuotationBuilder from './pages/QuotationBuilder';
 import QuotationView from './pages/QuotationView';
 import AdminPanel from './pages/AdminPanel';
+import Profile from './pages/Profile';
 
 export default function App() {
   return (
@@ -56,6 +57,14 @@ export default function App() {
           element={
             <PrivateRoute>
               <QuotationView />
+            </PrivateRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <PrivateRoute>
+              <Profile />
             </PrivateRoute>
           } 
         />

@@ -99,17 +99,15 @@ export default function Navbar() {
                 </Link>
               </li>
             )}
-            {!isAdmin && (
-              <li className="nav-item">
-                <Link 
-                  className="nav-link px-3 fw-semibold text-secondary" 
-                  to="#"
-                  onClick={(e) => { e.preventDefault(); alert('Profile page is under development.'); }}
-                >
-                  Profile
-                </Link>
-              </li>
-            )}
+            <li className="nav-item">
+              <Link 
+                className={`nav-link px-3 fw-semibold ${location.pathname === '/profile' ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
+                to="/profile"
+                style={{ transition: 'color 0.2s', paddingBottom: location.pathname === '/profile' ? '8px' : '6px' }}
+              >
+                Profile
+              </Link>
+            </li>
           </ul>
 
           <div className="d-flex align-items-center justify-content-center gap-3 mt-3 mt-lg-0">
@@ -150,8 +148,14 @@ export default function Navbar() {
               </button>
               <ul className="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="profileDropdown">
                 <li>
+                  <button className="dropdown-item py-2 text-dark" onClick={() => navigate('/profile')}>
+                    <i className="fas fa-user me-2 text-secondary" style={{ fontSize: '13px' }}></i> My Profile
+                  </button>
+                </li>
+                <li><hr className="dropdown-divider" /></li>
+                <li>
                   <button className="dropdown-item py-2 text-danger" onClick={handleLogout}>
-                    <i className="fas fa-sign-out-alt me-2"></i> Logout
+                    <i className="fas fa-sign-out-alt me-2" style={{ fontSize: '13px' }}></i> Logout
                   </button>
                 </li>
               </ul>
