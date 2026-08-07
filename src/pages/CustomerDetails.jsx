@@ -206,7 +206,7 @@ export default function CustomerDetails() {
     }}>
       <Navbar />
 
-      <div className="container py-4 px-4" style={{ maxWidth: '1200px' }}>
+      <div className="container-fluid py-4 px-lg-5 px-3">
         {/* Navigation & Header Tools */}
         <div className="d-flex justify-content-between align-items-center mb-4">
           <button 

@@ -23,7 +23,7 @@ export default function QuotationBuilder() {
   // Table & Form State
   const [projectUnit, setProjectUnit] = useState('Ft Inch');
   const [items, setItems] = useState([
-    { id: '1', category: '', subcategory: '', otherCategory: '', otherSubcategory: '', subCheckboxes: [], description: '', width: '', height: '', depth: '', unit: 'SQ.FT.', qty: 0, noOfUnit: 1, totalQty: 0, unitRate: 0, amount: 0, selected: true }
+    { id: '1', category: '', subcategory: '', otherCategory: '', otherSubcategory: '', subCheckboxes: [], description: '', width: '', height: '', depth: '', unit: 'SQ.FT.', qty: 0, noOfUnit: 1, totalQty: 0, unitRate: 0, amount: 0, selected: true, imageUrl: '' }
   ]);
   const [discountType, setDiscountType] = useState('flat'); // 'flat' or 'percent'
   const [discountInputVal, setDiscountInputVal] = useState(0);
@@ -230,13 +230,16 @@ export default function QuotationBuilder() {
 
     if (isFtInch && projectUnit === 'Ft Inch') {
       // Rounding rules:
+      // 0 => 0 inches
       // 0-3 => 3 inches (0.25 ft)
       // 4-6 => 6 inches (0.50 ft)
       // 7-9 => 9 inches (0.75 ft)
       // 10-12 => 12 inches (1.0 ft)
       let roundedInches = 3;
       let ft = feet;
-      if (inches <= 3) {
+      if (inches === 0) {
+        roundedInches = 0;
+      } else if (inches <= 3) {
         roundedInches = 3;
       } else if (inches <= 6) {
         roundedInches = 6;
@@ -364,7 +367,7 @@ export default function QuotationBuilder() {
     const newId = (items.length + 1).toString();
     setItems(prev => [
       ...prev,
-      { id: newId, category: '', subcategory: '', otherCategory: '', otherSubcategory: '', subCheckboxes: [], description: '', width: '', height: '', depth: '', unit: options[0], qty: 0, noOfUnit: 1, totalQty: 0, unitRate: 0, amount: 0, selected: true }
+      { id: newId, category: '', subcategory: '', otherCategory: '', otherSubcategory: '', subCheckboxes: [], description: '', width: '', height: '', depth: '', unit: options[0], qty: 0, noOfUnit: 1, totalQty: 0, unitRate: 0, amount: 0, selected: true, imageUrl: '' }
     ]);
   };
 
@@ -518,6 +521,33 @@ export default function QuotationBuilder() {
     }));
   };
 
+  const toggleEditItem = (id) => {
+    setItems(prev => prev.map(it => it.id === id ? { ...it, isEditing: !it.isEditing } : it));
+  };
+
+  const handleImageUpload = (id, file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setItems(prev => prev.map(item => {
+        if (item.id === id) {
+          return { ...item, imageUrl: reader.result };
+        }
+        return item;
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = (id) => {
+    setItems(prev => prev.map(item => {
+      if (item.id === id) {
+        return { ...item, imageUrl: '' };
+      }
+      return item;
+    }));
+  };
+
   // Summary Computations
   const subtotal = items.reduce((sum, item) => sum + (item.selected !== false ? (item.amount || 0) : 0), 0);
   const discount = discountType === 'percent'
@@ -631,7 +661,7 @@ export default function QuotationBuilder() {
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}>
         <Navbar />
-        <div className="container py-5">
+        <div className="container-fluid py-5 px-lg-5 px-3">
           <div className="card border-0 shadow-lg p-5 text-center bg-white" style={{ borderRadius: '12px' }}>
             <span className="spinner-border text-primary" role="status"></span>
             <p className="mt-2 text-muted small">Retrieving existing quotation details for revision...</p>
@@ -643,425 +673,571 @@ export default function QuotationBuilder() {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      backgroundColor: '#f8fafc',
       minHeight: '100vh',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       <Navbar />
 
-      <div className="container py-5">
-        <div className="card border-0 shadow-lg p-4 mx-auto" style={{ borderRadius: '12px', maxWidth: '1200px', background: 'white' }}>
+      <div className="container-fluid py-5 px-lg-5 px-3">
+        <div className="w-100">
           
           {/* Header */}
-          <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h2 className="text-primary fw-bold mb-0">
-              <i className="fas fa-file-invoice me-2"></i> {parentQuotationId ? 'Revise Quotation' : 'Create Quotation'}
-            </h2>
-            <Link to="/quotations" className="btn btn-outline-secondary fw-semibold">
+          <div className="d-flex justify-content-between align-items-center mb-4 pb-2">
+            <div>
+              <h2 className="fw-bold text-dark mb-1" style={{ fontSize: '26px' }}>
+                {parentQuotationId ? 'Revise Quotation' : 'Create Quotation'}
+              </h2>
+              <p className="text-secondary small mb-0">Overview of your Quotation today.</p>
+            </div>
+            <Link to="/quotations" className="btn btn-light bg-white border fw-semibold px-4" style={{ borderRadius: '8px', color: '#64748b' }}>
               <i className="fas fa-arrow-left me-1"></i> Back
             </Link>
           </div>
 
           {/* Customer & Project Summary */}
           {loadingCustomer ? (
-            <div className="text-center py-4">
+            <div className="text-center py-4 bg-white rounded-3 shadow-sm mb-4 border">
               <span className="spinner-border text-primary" role="status"></span>
-              <p className="mt-2 text-muted small">Loading customer context...</p>
+              <p className="mt-2 text-muted small mb-0">Loading customer context...</p>
             </div>
           ) : customer ? (
-            <div className="card bg-light border-0 p-3 mb-4" style={{ borderRadius: '8px' }}>
-              <h6 className="fw-bold text-primary mb-3"><i className="fas fa-user-circle me-1"></i> Client Details &amp; Project Summary</h6>
-              <div className="row g-3 small">
+            <div className="card bg-white border rounded-3 p-4 mb-4 shadow-sm" style={{ borderRadius: '12px' }}>
+              <h6 className="fw-bold text-primary mb-4 d-flex align-items-center" style={{ fontSize: '15px' }}>
+                <i className="fas fa-user-circle me-2"></i> Client Details &amp; Project Summary
+              </h6>
+              <div className="row g-4 small mb-4">
                 <div className="col-md-3">
-                  <span className="text-secondary">Customer Name:</span>
-                  <div className="fw-bold text-dark">{customer.name}</div>
+                  <span className="text-secondary fw-semibold d-block mb-1" style={{ letterSpacing: '0.03em' }}>CUSTOMER NAME</span>
+                  <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{customer.name}</div>
                 </div>
                 <div className="col-md-3">
-                  <span className="text-secondary">Phone Number:</span>
-                  <div className="fw-bold text-dark">{customer.phone}</div>
+                  <span className="text-secondary fw-semibold d-block mb-1" style={{ letterSpacing: '0.03em' }}>PHONE NUMBER</span>
+                  <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{customer.phone}</div>
                 </div>
                 <div className="col-md-3">
-                  <span className="text-secondary">Work Type:</span>
-                  <div className="fw-bold text-dark">{customer.project?.workType || '-'}</div>
+                  <span className="text-secondary fw-semibold d-block mb-1" style={{ letterSpacing: '0.03em' }}>WORK TYPE</span>
+                  <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>{customer.project?.workType || '-'}</div>
                 </div>
                 <div className="col-md-3">
-                  <span className="text-secondary">Budget / Timeline:</span>
-                  <div className="fw-bold text-dark">
-                    ₹{customer.project?.budget ? Number(customer.project.budget).toLocaleString() : '-'} | {customer.project?.timeline || '-'}
+                  <span className="text-secondary fw-semibold d-block mb-1" style={{ letterSpacing: '0.03em' }}>BUDGET / TIMELINE</span>
+                  <div className="fw-bold text-dark" style={{ fontSize: '14px' }}>
+                    ₹{customer.project?.budget ? Number(customer.project.budget).toLocaleString() : '-'} | {customer.project?.timeline ? `${customer.project.timeline} Months` : '-'}
                   </div>
                 </div>
+              </div>
+
+              {/* Project Unit Selector Setting */}
+              <div className="border-top pt-4 d-flex align-items-center gap-3">
+                <span className="fw-bold text-dark mb-0 small me-2">Project Unit Model:</span>
+                <div className="d-flex align-items-center gap-2">
+                  {['Ft Inch', 'Meter & MM', 'Kgs', 'Others'].map((mode) => (
+                    <div key={mode} className="form-check form-check-inline mb-0 p-0">
+                      <input 
+                        className="form-check-input d-none" 
+                        type="radio" 
+                        name="projectUnit" 
+                        id={`unit-${mode}`} 
+                        value={mode}
+                        checked={projectUnit === mode}
+                        onChange={() => handleProjectUnitChange(mode)}
+                        disabled={unitLocked}
+                      />
+                      <label 
+                        className={`btn btn-sm px-3 py-2 fw-semibold rounded-pill border ${projectUnit === mode ? 'btn-primary' : 'btn-light bg-white text-secondary'}`}
+                        htmlFor={`unit-${mode}`}
+                        style={{ fontSize: '12px', cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        <span className="me-1">•</span> {mode}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {unitLocked && <span className="text-muted small ms-auto"><i className="fas fa-lock me-1"></i> Mode locked (table active)</span>}
               </div>
             </div>
           ) : null}
 
-          {/* Project Unit Selector Setting */}
-          <div className="border rounded p-3 mb-4 bg-light d-flex align-items-center gap-3">
-            <span className="fw-bold text-dark mb-0 small">Project Unit Mode:</span>
-            {['Ft Inch', 'Meter & MM', 'Kgs', 'Others'].map((mode) => (
-              <div key={mode} className="form-check form-check-inline mb-0">
-                <input 
-                  className="form-check-input" 
-                  type="radio" 
-                  name="projectUnit" 
-                  id={`unit-${mode}`} 
-                  value={mode}
-                  checked={projectUnit === mode}
-                  onChange={() => handleProjectUnitChange(mode)}
-                  disabled={unitLocked}
-                />
-                <label className="form-check-label small fw-semibold" htmlFor={`unit-${mode}`}>{mode}</label>
+          {/* Items Section */}
+          <div className="bg-white border rounded-3 p-4 shadow-sm mb-4" style={{ borderRadius: '12px' }}>
+            <div className="d-flex justify-content-between align-items-center mb-4">
+              <div>
+                <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '18px' }}>Quotation Items</h5>
+                <p className="text-secondary small mb-0">Add and manage all items for this quotation.</p>
               </div>
-            ))}
-            {unitLocked && <span className="text-muted small ms-auto"><i className="fas fa-lock me-1"></i> Mode locked (table active)</span>}
-          </div>
+              <button className="btn btn-outline-primary fw-semibold btn-sm px-3 py-2" onClick={addRow} style={{ borderRadius: '8px' }}>
+                <i className="fas fa-plus me-1"></i> Add New Item
+              </button>
+            </div>
 
-          {/* Items Table */}
-          <div className="table-responsive mb-3 border rounded">
-            <table className="table table-bordered table-hover mb-0 align-middle" style={{ minWidth: '950px' }}>
-              <thead className="table-primary text-secondary">
-                <tr className="small text-center">
-                  <th style={{ width: '50px' }}>S.No</th>
-                  <th style={{ width: '45px' }}>
-                    <input 
-                      type="checkbox" 
-                      className="form-check-input"
-                      checked={items.length > 0 && items.every(it => it.selected !== false)}
-                      onChange={(e) => {
-                        const checked = e.target.checked;
-                        setItems(prev => prev.map(it => ({ ...it, selected: checked })));
-                      }}
-                      title="Select/Deselect all rows for calculation"
-                    />
-                  </th>
-                  <th style={{ minWidth: '280px' }}>Description &amp; Categories</th>
-                  <th style={{ width: '90px' }}>Width</th>
-                  <th style={{ width: '90px' }}>Height</th>
-                  <th style={{ width: '90px' }}>Depth</th>
-                  <th style={{ width: '110px' }}>Unit</th>
-                  <th style={{ width: '90px' }}>Qty</th>
-                  <th style={{ width: '80px' }}>Nos</th>
-                  <th style={{ width: '95px' }}>Total Qty.</th>
-                  <th style={{ width: '120px' }}>Rate (₹)</th>
-                  <th style={{ width: '130px' }}>Amount (₹)</th>
-                  <th style={{ width: '60px' }}>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item, index) => {
-                  const subOptions = CATEGORY_MAP[item.category] || [];
-                  const isOthersSubChecked = item.subCheckboxes.includes('Others');
+            <div className="table-responsive mb-3 border rounded">
+              <table className="table table-hover mb-0 align-middle">
+                <thead>
+                  <tr className="text-secondary border-bottom bg-light small" style={{ fontSize: '12px', height: '45px' }}>
+                    <th style={{ width: '40px' }}>
+                      <input 
+                        type="checkbox" 
+                        className="form-check-input ms-2"
+                        checked={items.length > 0 && items.every(it => it.selected !== false)}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setItems(prev => prev.map(it => ({ ...it, selected: checked })));
+                        }}
+                        title="Select/Deselect all rows for calculation"
+                      />
+                    </th>
+                    <th style={{ width: '60px' }} className="text-center">S.NO</th>
+                    <th style={{ minWidth: '300px' }}>DESCRIPTION</th>
+                    <th style={{ width: '180px' }}>DIMENSIONS</th>
+                    <th style={{ width: '150px' }}>QUANTITY</th>
+                    <th style={{ width: '150px' }}>RATE</th>
+                    <th style={{ width: '150px' }} className="text-end pe-3">AMOUNT</th>
+                    <th style={{ width: '80px' }} className="text-center">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((item, index) => {
+                    const subOptions = CATEGORY_MAP[item.category] || [];
+                    const isOthersSubChecked = item.subCheckboxes.includes('Others');
+                    const isSelected = item.selected !== false;
+                    const isEditing = item.isEditing === true;
 
-                  const filteredApprovedItems = item.selectedType
-                    ? approvedItems.filter(ai => ai.mainHeading === item.selectedType)
-                    : approvedItems;
+                    const filteredApprovedItems = item.selectedType
+                      ? approvedItems.filter(ai => ai.mainHeading === item.selectedType)
+                      : approvedItems;
 
-                  const isSelected = item.selected !== false;
-
-                  return (
-                    <tr 
-                      key={item.id} 
-                      className="small"
-                      style={!isSelected ? { opacity: 0.5, backgroundColor: '#f8f9fa' } : {}}
-                    >
-                      <td className="text-center fw-bold text-secondary">{index + 1}</td>
-                      <td className="text-center">
-                        <input 
-                          type="checkbox" 
-                          className="form-check-input"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            const checked = e.target.checked;
-                            setItems(prev => prev.map(it => it.id === item.id ? { ...it, selected: checked } : it));
-                          }}
-                          title={isSelected ? "Uncheck to exclude from calculations" : "Check to include in calculations"}
-                        />
-                      </td>
-                      <td>
-                        {/* Type Select */}
-                        <select 
-                          className="form-select form-select-sm mb-2" 
-                          value={item.selectedType || ''}
-                          onChange={(e) => handleTypeChange(item.id, e.target.value)}
+                    return (
+                      <React.Fragment key={item.id}>
+                        <tr 
+                          className="small border-bottom"
+                          style={!isSelected ? { opacity: 0.5, backgroundColor: '#f8f9fa' } : {}}
                         >
-                          <option value="">All Category Types...</option>
-                          {availableTypes.map((type) => (
-                            <option key={type} value={type}>
-                              {type}
-                            </option>
-                          ))}
-                        </select>
+                          <td>
+                            <input 
+                              type="checkbox" 
+                              className="form-check-input ms-2"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setItems(prev => prev.map(it => it.id === item.id ? { ...it, selected: checked } : it));
+                              }}
+                            />
+                          </td>
+                          <td className="text-center fw-bold text-secondary">{index + 1}</td>
+                          <td>
+                            <div className="d-flex flex-column">
+                              <span className="fw-bold text-dark" style={{ fontSize: '14px' }}>
+                                {item.category || "Select Category"}
+                              </span>
+                              <span className="text-secondary small">
+                                {item.selectedType || "All Category Types"}
+                              </span>
+                              <button 
+                                type="button" 
+                                className="btn btn-link btn-sm text-primary p-0 border-0 mt-1 text-start fw-semibold"
+                                onClick={() => toggleEditItem(item.id)}
+                                style={{ textDecoration: 'none', fontSize: '12px' }}
+                              >
+                                + Specifications
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="d-flex align-items-center gap-2">
+                              <span className="text-dark">
+                                {item.width && item.height ? (
+                                  `${formatDimension(item.width, item.unit)} × ${formatDimension(item.height, item.unit)}${item.depth ? ` × ${formatDimension(item.depth, item.unit)}` : ''}`
+                                ) : (
+                                  "0.00 × 0.00"
+                                )}
+                              </span>
+                              <button 
+                                type="button" 
+                                className="btn btn-link btn-sm text-secondary p-0 border-0"
+                                onClick={() => toggleEditItem(item.id)}
+                              >
+                                <i className="fas fa-pencil-alt small"></i>
+                              </button>
+                            </div>
+                          </td>
+                          <td>
+                            <div className="d-flex flex-column">
+                              <span className="fw-semibold text-dark">{item.qty.toFixed(2)} {item.unit}</span>
+                              <span className="text-secondary small">({item.noOfUnit} No.)</span>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="text-dark">₹{item.unitRate.toFixed(2)} / {item.unit}</span>
+                          </td>
+                          <td className="text-end fw-bold text-dark pe-3">
+                            ₹{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                          <td className="text-center">
+                            <button 
+                              type="button" 
+                              className="btn btn-link btn-sm text-secondary p-0 border-0"
+                              onClick={() => toggleEditItem(item.id)}
+                            >
+                              <i className={`fas fa-chevron-${isEditing ? 'up' : 'down'}`}></i>
+                            </button>
+                          </td>
+                        </tr>
 
-                        {/* Category Select */}
-                        <select 
-                          className="form-select form-select-sm mb-2" 
-                          value={item.category}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (['partitions', 'doors', 'windows', 'ceilings', 'others'].includes(val)) {
-                              handleCategoryChange(item.id, val);
-                            } else {
-                              handleApprovedItemSelect(item.id, val);
-                            }
-                          }}
-                        >
-                          <option value="">Select Category...</option>
-                          {filteredApprovedItems.length > 0 && (
-                            <optgroup label="Pre-approved Categories">
-                              {filteredApprovedItems.map((ai, idx) => (
-                                <option key={idx} value={ai.subHeading}>
-                                  {ai.subHeading} {ai.isNew ? '(New)' : ''}
-                                </option>
-                              ))}
-                            </optgroup>
-                          )}
-                          <optgroup label="Custom Categories">
-                            <option value="partitions">Partitions</option>
-                            <option value="doors">Doors</option>
-                            <option value="windows">Windows</option>
-                            <option value="ceilings">Ceilings</option>
-                            <option value="others">Others</option>
-                          </optgroup>
-                        </select>
+                        {isEditing && (
+                          <tr className="bg-light">
+                            <td colSpan="8" className="p-3">
+                              <div className="card shadow-sm border rounded-3 p-4 bg-white">
+                                <div className="row g-3 mb-3">
+                                  {/* Left Side fields */}
+                                  <div className="col-md-8">
+                                    <div className="row g-3">
+                                      <div className="col-md-6">
+                                        <label className="form-label small fw-bold text-secondary mb-1">Sub Heading</label>
+                                        <select 
+                                          className="form-select border" 
+                                          value={item.selectedType || ''}
+                                          onChange={(e) => handleTypeChange(item.id, e.target.value)}
+                                          style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                        >
+                                          <option value="">Choose Sub Heading...</option>
+                                          {availableTypes.map((type) => (
+                                            <option key={type} value={type}>{type}</option>
+                                          ))}
+                                        </select>
+                                      </div>
+                                      
+                                      <div className="col-md-6">
+                                        <label className="form-label small fw-bold text-secondary mb-1">Category</label>
+                                        <select 
+                                          className="form-select border" 
+                                          value={item.category}
+                                          onChange={(e) => {
+                                            const val = e.target.value;
+                                            if (['partitions', 'doors', 'windows', 'ceilings', 'others'].includes(val)) {
+                                              handleCategoryChange(item.id, val);
+                                            } else {
+                                              handleApprovedItemSelect(item.id, val);
+                                            }
+                                          }}
+                                          style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                        >
+                                          <option value="">Choose Category...</option>
+                                          {filteredApprovedItems.map((ai, idx) => (
+                                            <option key={idx} value={ai.subHeading}>
+                                              {ai.subHeading} {ai.isNew ? '(New)' : ''}
+                                            </option>
+                                          ))}
+                                          <option value="others">Other (Specify)</option>
+                                        </select>
+                                      </div>
 
-                        {item.category && !['partitions', 'doors', 'windows', 'ceilings', 'others'].includes(item.category) && (
-                          <div className="text-secondary fw-semibold mb-2 small p-2 bg-light rounded border-start border-primary border-3" style={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.3' }}>
-                            {item.category}
-                          </div>
-                        )}
+                                      {item.category === 'others' && (
+                                        <div className="col-md-12">
+                                          <label className="form-label small fw-bold text-secondary mb-1">Specify Custom Category</label>
+                                          <input 
+                                            type="text" 
+                                            className="form-control border"
+                                            placeholder="Custom Category Name"
+                                            value={item.otherCategory}
+                                            onChange={(e) => handleCellChange(item.id, 'otherCategory', e.target.value)}
+                                            style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                          />
+                                        </div>
+                                      )}
 
-                        {item.category === 'others' && (
-                          <textarea 
-                            className="form-control form-control-sm mb-2" 
-                            placeholder="Specify custom category"
-                            rows="2"
-                            value={item.otherCategory}
-                            onChange={(e) => handleCellChange(item.id, 'otherCategory', e.target.value)}
-                            style={{ resize: 'vertical', minHeight: '50px' }}
-                          />
-                        )}
+                                      <div className="col-md-12">
+                                        <label className="form-label small fw-bold text-secondary mb-1">Additional Specifications</label>
+                                        <textarea 
+                                          className="form-control border" 
+                                          rows="2"
+                                          placeholder="Enter details..."
+                                          value={item.description}
+                                          onChange={(e) => handleCellChange(item.id, 'description', e.target.value)}
+                                          style={{ borderRadius: '6px', fontSize: '13px' }}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
 
-                        {/* Subcategory Checkboxes */}
-                        {subOptions.length > 0 && (
-                          <div className="border rounded p-2 mb-2 bg-light" style={{ maxHeight: '90px', overflowY: 'auto' }}>
-                            {subOptions.map(sub => (
-                              <div key={sub} className="form-check form-check-inline mb-1">
-                                <input 
-                                  className="form-check-input" 
-                                  type="checkbox" 
-                                  id={`chk-${item.id}-${sub}`}
-                                  value={sub}
-                                  checked={item.subCheckboxes.includes(sub)}
-                                  onChange={(e) => handleSubCheckboxToggle(item.id, sub, e.target.checked)}
-                                />
-                                <label className="form-check-label" style={{ fontSize: '11px' }} htmlFor={`chk-${item.id}-${sub}`}>{sub}</label>
+                                  {/* Right Side Add Image */}
+                                  <div className="col-md-4 d-flex flex-column align-items-center justify-content-center border-start">
+                                    {item.imageUrl ? (
+                                      <div className="position-relative w-100 text-center" style={{ height: '150px' }}>
+                                        <img 
+                                          src={item.imageUrl} 
+                                          alt="Preview" 
+                                          className="img-thumbnail w-100 h-100" 
+                                          style={{ objectFit: 'contain' }}
+                                        />
+                                        <button 
+                                          type="button" 
+                                          className="btn btn-danger btn-sm position-absolute top-0 end-0 m-1 rounded-circle p-1 d-flex align-items-center justify-content-center"
+                                          onClick={() => handleRemoveImage(item.id)}
+                                          style={{ width: '24px', height: '24px', fontSize: '10px' }}
+                                          title="Remove Image"
+                                        >
+                                          <i className="fas fa-times"></i>
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <label 
+                                        className="border border-dashed rounded-3 p-4 text-center bg-light w-100 d-flex flex-column align-items-center justify-content-center" 
+                                        style={{ height: '150px', cursor: 'pointer' }}
+                                      >
+                                        <input 
+                                          type="file" 
+                                          className="d-none" 
+                                          accept="image/*"
+                                          onChange={(e) => handleImageUpload(item.id, e.target.files[0])}
+                                        />
+                                        <i className="fas fa-image fa-2x text-muted mb-2"></i>
+                                        <span className="small text-muted fw-semibold">Add Image</span>
+                                      </label>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Dimensions header & inputs */}
+                                <h6 className="fw-bold text-secondary border-bottom pb-2 mb-3 mt-4 small" style={{ letterSpacing: '0.05em' }}>
+                                  <i className="fas fa-arrows-alt me-1 text-primary"></i> DIMENSIONS
+                                </h6>
+                                
+                                <div className="row g-3 align-items-end">
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Width</label>
+                                    <input 
+                                      type="text" 
+                                      className="form-control border text-center" 
+                                      value={item.width}
+                                      placeholder="Width"
+                                      onChange={(e) => handleCellChange(item.id, 'width', e.target.value)}
+                                      onBlur={(e) => handleCellBlur(item.id, 'width', e.target.value)}
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                    />
+                                  </div>
+                                  
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Height</label>
+                                    <input 
+                                      type="text" 
+                                      className="form-control border text-center" 
+                                      value={item.height}
+                                      placeholder="Height"
+                                      onChange={(e) => handleCellChange(item.id, 'height', e.target.value)}
+                                      onBlur={(e) => handleCellBlur(item.id, 'height', e.target.value)}
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                    />
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Depth</label>
+                                    <input 
+                                      type="text" 
+                                      className="form-control border text-center" 
+                                      value={item.depth}
+                                      placeholder="Depth"
+                                      onChange={(e) => handleCellChange(item.id, 'depth', e.target.value)}
+                                      onBlur={(e) => handleCellBlur(item.id, 'depth', e.target.value)}
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                    />
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Unit</label>
+                                    <select 
+                                      className="form-select border" 
+                                      value={item.unit}
+                                      onChange={(e) => handleCellChange(item.id, 'unit', e.target.value)}
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                    >
+                                      {getUnitOptions(projectUnit).map(u => (
+                                        <option key={u} value={u}>{u}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Quantity</label>
+                                    <input 
+                                      type="text" 
+                                      className="form-control border text-center bg-light font-monospace" 
+                                      value={item.qty}
+                                      readOnly
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}
+                                    />
+                                  </div>
+
+                                  <div className="col-md-2">
+                                    <label className="form-label small fw-bold text-secondary mb-1">Nos.</label>
+                                    <input 
+                                      type="number" 
+                                      className="form-control border text-center" 
+                                      value={item.noOfUnit}
+                                      onChange={(e) => handleCellChange(item.id, 'noOfUnit', e.target.value)}
+                                      style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="row g-3 align-items-center mt-3 border-top pt-3">
+                                  <div className="col-md-5">
+                                    <div className="row g-2">
+                                      <div className="col-md-6">
+                                        <label className="form-label small fw-bold text-secondary mb-1">Rate (₹)</label>
+                                        <input 
+                                          type="number" 
+                                          className="form-control border" 
+                                          value={item.unitRate}
+                                          onChange={(e) => handleCellChange(item.id, 'unitRate', e.target.value)}
+                                          style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
+                                        />
+                                      </div>
+                                      <div className="col-md-6">
+                                        <label className="form-label small fw-bold text-secondary mb-1">Amount (₹)</label>
+                                        <div className="form-control bg-light border fw-bold text-end" style={{ height: '40px', borderRadius: '6px', fontSize: '13px', lineHeight: '26px' }}>
+                                          ₹{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="col-md-7 text-end">
+                                    <button 
+                                      type="button" 
+                                      className="btn btn-outline-danger me-2" 
+                                      onClick={() => deleteRow(item.id)}
+                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600' }}
+                                    >
+                                      <i className="fas fa-trash me-1"></i> Delete
+                                    </button>
+                                    <button 
+                                      type="button" 
+                                      className="btn btn-light border me-2" 
+                                      onClick={() => toggleEditItem(item.id)}
+                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', color: '#64748b' }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button 
+                                      type="button" 
+                                      className="btn btn-primary px-4" 
+                                      onClick={() => toggleEditItem(item.id)}
+                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', backgroundColor: '#2563eb', border: 'none' }}
+                                    >
+                                      Save Item
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            ))}
-                          </div>
+                            </td>
+                          </tr>
                         )}
+                      </React.Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-                        {isOthersSubChecked && (
-                          <textarea 
-                            className="form-control form-control-sm mb-2" 
-                            placeholder="Specify custom subcategory"
-                            rows="2"
-                            value={item.otherSubcategory}
-                            onChange={(e) => handleOtherSubchange(item.id, e.target.value)}
-                            style={{ resize: 'vertical', minHeight: '50px' }}
-                          />
-                        )}
-
-                        {/* Additional notes */}
-                        <div className="d-flex align-items-center gap-1">
-                          <input 
-                            type="text" 
-                            className="form-control form-control-sm" 
-                            placeholder="Additional specifications"
-                            value={item.description}
-                            onChange={(e) => handleCellChange(item.id, 'description', e.target.value)}
-                          />
-                          <button 
-                            type="button" 
-                            className="btn btn-sm btn-outline-primary px-2 py-1"
-                            onClick={() => setActiveDescriptionPopup({ itemId: item.id, text: item.description })}
-                            title="See full description"
-                            style={{ fontSize: '11px', whiteSpace: 'nowrap' }}
-                          >
-                            See More
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm text-center" 
-                          style={{ minWidth: '70px' }}
-                          value={item.width}
-                          onChange={(e) => handleCellChange(item.id, 'width', e.target.value)}
-                          onBlur={(e) => handleCellBlur(item.id, 'width', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm text-center" 
-                          style={{ minWidth: '70px' }}
-                          value={item.height}
-                          onChange={(e) => handleCellChange(item.id, 'height', e.target.value)}
-                          onBlur={(e) => handleCellBlur(item.id, 'height', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input 
-                          type="text" 
-                          className="form-control form-control-sm text-center" 
-                          style={{ minWidth: '70px' }}
-                          value={item.depth}
-                          onChange={(e) => handleCellChange(item.id, 'depth', e.target.value)}
-                          onBlur={(e) => handleCellBlur(item.id, 'depth', e.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <select 
-                          className="form-select form-select-sm" 
-                          style={{ minWidth: '95px' }}
-                          value={item.unit}
-                          onChange={(e) => handleCellChange(item.id, 'unit', e.target.value)}
-                        >
-                          {getUnitOptions(projectUnit).map(u => (
-                            <option key={u} value={u}>{u}</option>
-                          ))}
-                        </select>
-                      </td>
-                      <td className="text-center fw-bold bg-light">{item.qty.toFixed(2)}</td>
-                      <td>
-                        <input 
-                          type="number" 
-                          className="form-control form-control-sm text-center" 
-                          style={{ minWidth: '70px' }}
-                          value={item.noOfUnit}
-                          min="0"
-                          step="0.01"
-                          onChange={(e) => handleCellChange(item.id, 'noOfUnit', e.target.value)}
-                        />
-                      </td>
-                      <td className="text-center fw-bold bg-light">{(item.totalQty || 0).toFixed(2)}</td>
-                      <td>
-                        <input 
-                          type="number" 
-                          className="form-control form-control-sm text-end" 
-                          style={{ minWidth: '100px' }}
-                          value={item.unitRate}
-                          min="0"
-                          step="0.01"
-                          onChange={(e) => handleCellChange(item.id, 'unitRate', e.target.value)}
-                        />
-                      </td>
-                      <td className="text-end fw-bold bg-light">₹{item.amount.toFixed(2)}</td>
-                      <td className="text-center">
-                        <button className="btn btn-sm btn-outline-danger border-0" onClick={() => deleteRow(item.id)}>
-                          <i className="fas fa-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <div className="d-flex justify-content-center py-2 border-top">
+              <button type="button" className="btn btn-light border fw-semibold px-4 text-secondary small" onClick={addRow} style={{ borderRadius: '8px' }}>
+                + Add New Item
+              </button>
+            </div>
           </div>
-
-          <button className="btn btn-outline-primary fw-bold btn-sm mb-4 px-3" onClick={addRow}>
-            <i className="fas fa-plus me-1"></i> Add New Item
-          </button>
 
           {/* Summary Details */}
           {items.length > 0 && (
-            <div className="card text-white p-4 mb-4 border-0" style={{ 
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              borderRadius: '10px'
-            }}>
-              <div className="d-flex justify-content-between border-bottom pb-2 mb-2">
-                <span className="fw-semibold">Subtotal:</span>
-                <span className="fw-bold">₹{subtotal.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
-                <span className="fw-semibold">Discount:</span>
-                <div className="d-flex align-items-center gap-2">
-                  {discountType === 'percent' && discount > 0 && (
-                    <span className="small text-white-50 fw-semibold me-1">(-₹{discount.toFixed(2)})</span>
-                  )}
-                  <select 
-                    className="form-select form-select-sm fw-bold text-dark" 
-                    style={{ width: '65px', borderRadius: '4px' }}
-                    value={discountType}
-                    onChange={e => {
-                      setDiscountType(e.target.value);
-                      setDiscountInputVal(0);
-                    }}
-                  >
-                    <option value="flat">₹</option>
-                    <option value="percent">%</option>
-                  </select>
-                  <input 
-                    type="number" 
-                    className="form-control form-control-sm text-end fw-bold" 
-                    style={{ width: '100px', borderRadius: '4px' }}
-                    value={discountInputVal || ''}
-                    min="0"
-                    max={discountType === 'percent' ? 100 : undefined}
-                    placeholder="0"
-                    onChange={e => {
-                      const val = Math.max(0, parseFloat(e.target.value) || 0);
-                      if (discountType === 'percent') {
-                        setDiscountInputVal(Math.min(100, val));
-                      } else {
-                        setDiscountInputVal(val);
-                      }
-                    }}
-                  />
+            <div className="bg-white border rounded-3 p-4 shadow-sm mb-4" style={{ borderRadius: '12px' }}>
+              <div className="row justify-content-end">
+                <div className="col-md-5">
+                  <div className="d-flex justify-content-between mb-3 align-items-center">
+                    <span className="text-secondary fw-semibold small">Subtotal</span>
+                    <span className="fw-bold text-dark fs-6">₹{subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <span className="text-secondary fw-semibold small">Discount</span>
+                    <div className="d-flex align-items-center gap-2">
+                      <div className="input-group" style={{ width: '130px' }}>
+                        <input 
+                          type="number" 
+                          className="form-control text-end fw-semibold border-end-0" 
+                          style={{ height: '36px', fontSize: '13px', borderRadius: '6px 0 0 6px' }}
+                          value={discountInputVal || ''}
+                          min="0"
+                          max={discountType === 'percent' ? 100 : undefined}
+                          placeholder="0"
+                          onChange={e => {
+                            const val = Math.max(0, parseFloat(e.target.value) || 0);
+                            if (discountType === 'percent') {
+                              setDiscountInputVal(Math.min(100, val));
+                            } else {
+                              setDiscountInputVal(val);
+                            }
+                          }}
+                        />
+                        <button 
+                          className={`btn btn-outline-secondary px-2 ${discountType === 'percent' ? 'bg-primary text-white border-primary' : 'bg-light text-dark'}`}
+                          type="button" 
+                          onClick={() => setDiscountType(discountType === 'percent' ? 'flat' : 'percent')}
+                          style={{ fontSize: '12px', height: '36px', borderRadius: '0 6px 6px 0' }}
+                        >
+                          {discountType === 'percent' ? '%' : '₹'}
+                        </button>
+                      </div>
+                      {discount > 0 && (
+                        <span className="text-danger small fw-semibold">-₹{discount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="form-check p-0 mb-0 d-flex align-items-center">
+                      <input 
+                        className="form-check-input ms-0 me-2" 
+                        type="checkbox" 
+                        id="gstCheck"
+                        checked={includeGst}
+                        onChange={e => setIncludeGst(e.target.checked)}
+                      />
+                      <label className="form-check-label text-secondary fw-semibold small" htmlFor="gstCheck">Inclusive GST (18%)</label>
+                    </div>
+                    <span className="fw-semibold text-dark">₹{gstAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+
+                  <div className="d-flex justify-content-between pt-3 mt-3 border-top align-items-center">
+                    <span className="fw-bold text-dark fs-5">GRAND TOTAL</span>
+                    <span className="fw-bold text-primary fs-4">₹{grandTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
-                <div className="form-check p-0 mb-0">
-                  <input 
-                    className="form-check-input ms-0 me-2" 
-                    type="checkbox" 
-                    id="gstCheck"
-                    checked={includeGst}
-                    onChange={e => setIncludeGst(e.target.checked)}
-                  />
-                  <label className="form-check-label fw-semibold" htmlFor="gstCheck">Include GST (18%)</label>
-                </div>
-                <span className="fw-bold">₹{gstAmount.toFixed(2)}</span>
-              </div>
-              <div className="d-flex justify-content-between pt-2 fs-5">
-                <span className="fw-bold">GRAND TOTAL:</span>
-                <span className="fw-bold text-warning">₹{grandTotal.toFixed(2)}</span>
               </div>
             </div>
           )}
 
           {/* Action Footer Buttons */}
           {items.length > 0 && (
-            <div className="d-flex gap-3 flex-wrap">
-              <button className="btn btn-success fw-bold py-2 px-4 flex-grow-1" onClick={handleOpenPreview}>
+            <div className="d-flex justify-content-end gap-3 flex-wrap mt-4">
+              <button className="btn btn-outline-primary fw-semibold py-2 px-4" onClick={handleOpenPreview} style={{ borderRadius: '8px' }}>
                 <i className="fas fa-eye me-1"></i> View Quotation
               </button>
               <button 
-                className="btn btn-warning text-white fw-bold py-2 px-4 flex-grow-1" 
+                className="btn btn-outline-secondary fw-semibold py-2 px-4" 
                 onClick={handleDirectPdfDownload}
                 disabled={submitting}
+                style={{ borderRadius: '8px' }}
               >
                 {submitting ? <span className="spinner-border spinner-border-sm me-1"></span> : <i className="fas fa-file-pdf me-1"></i>}
                 Download PDF
               </button>
               <button 
-                className="btn btn-primary fw-bold py-2 px-4 flex-grow-1" 
+                className="btn btn-primary fw-semibold py-2 px-4" 
                 onClick={handleSaveQuotation}
                 disabled={submitting}
-                style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                style={{ borderRadius: '8px', backgroundColor: '#2563eb', border: 'none' }}
               >
                 {submitting ? <span className="spinner-border spinner-border-sm me-1"></span> : <i className="fas fa-save me-1"></i>}
-                {parentQuotationId ? 'Save Revision & Go Back' : 'Save & Go Back'}
+                {parentQuotationId ? 'Save & Go Back' : 'Save & Go Back'}
               </button>
             </div>
           )}

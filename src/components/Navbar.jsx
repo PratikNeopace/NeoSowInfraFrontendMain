@@ -26,55 +26,9 @@ export default function Navbar() {
     year: 'numeric'
   });
 
-  if (isAdmin) {
-    return (
-      <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm py-2">
-        <div className="container-fluid px-4">
-          <Link className="navbar-brand text-primary fw-bold fs-4" to="/">🏠 Portal</Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span className="navbar-toggler-icon"></span>
-          </button>
-          <div className="collapse navbar-collapse" id="navbarNav">
-            <ul className="navbar-nav ms-auto align-items-center">
-              <li className="nav-item">
-                <Link 
-                  className={`nav-link fw-semibold px-3 ${location.pathname === '/' ? 'text-primary' : 'text-dark'}`} 
-                  to="/"
-                >
-                  Dashboard
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link 
-                  className={`nav-link fw-semibold px-3 ${location.pathname.startsWith('/quotations') ? 'text-primary' : 'text-dark'}`} 
-                  to="/quotations"
-                >
-                  Quotations
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link 
-                  className={`nav-link fw-semibold px-3 ${location.pathname.startsWith('/admin') ? 'text-primary' : 'text-dark'}`} 
-                  to="/admin"
-                >
-                  Admin Panel
-                </Link>
-              </li>
-              <li className="nav-item ms-3">
-                <button className="btn btn-primary btn-sm px-4 logout-btn" onClick={handleLogout}>
-                  Logout
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-white border-bottom py-3" style={{ fontFamily: "'Segoe UI', Roboto, Helvetica, Arial, sans-serif" }}>
-      <div className="container px-4">
+      <div className="container-fluid px-lg-5 px-3">
         {/* Brand Logo with automatic image detection & SVG fallback */}
         <Link className="navbar-brand d-flex align-items-center text-decoration-none" to="/">
           {!logoError ? (
@@ -114,15 +68,17 @@ export default function Navbar() {
                 Dashboard
               </Link>
             </li>
-            <li className="nav-item">
-              <Link 
-                className={`nav-link px-3 fw-semibold ${location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
-                to="/quotations"
-                style={{ transition: 'color 0.2s', paddingBottom: location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? '8px' : '6px' }}
-              >
-                Quotations
-              </Link>
-            </li>
+            {!isAdmin && (
+              <li className="nav-item">
+                <Link 
+                  className={`nav-link px-3 fw-semibold ${location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
+                  to="/quotations"
+                  style={{ transition: 'color 0.2s', paddingBottom: location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? '8px' : '6px' }}
+                >
+                  Quotations
+                </Link>
+              </li>
+            )}
             <li className="nav-item">
               <Link 
                 className={`nav-link px-3 fw-semibold ${location.pathname.includes('customer-details') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
@@ -132,15 +88,28 @@ export default function Navbar() {
                 Customers
               </Link>
             </li>
-            <li className="nav-item">
-              <Link 
-                className="nav-link px-3 fw-semibold text-secondary" 
-                to="#"
-                onClick={(e) => { e.preventDefault(); alert('Profile page is under development.'); }}
-              >
-                Profile
-              </Link>
-            </li>
+            {isAdmin && (
+              <li className="nav-item">
+                <Link 
+                  className={`nav-link px-3 fw-semibold ${location.pathname.startsWith('/admin') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
+                  to="/admin"
+                  style={{ transition: 'color 0.2s', paddingBottom: location.pathname.startsWith('/admin') ? '8px' : '6px' }}
+                >
+                  Admin Panel
+                </Link>
+              </li>
+            )}
+            {!isAdmin && (
+              <li className="nav-item">
+                <Link 
+                  className="nav-link px-3 fw-semibold text-secondary" 
+                  to="#"
+                  onClick={(e) => { e.preventDefault(); alert('Profile page is under development.'); }}
+                >
+                  Profile
+                </Link>
+              </li>
+            )}
           </ul>
 
           <div className="d-flex align-items-center justify-content-center gap-3 mt-3 mt-lg-0">

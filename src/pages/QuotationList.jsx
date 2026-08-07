@@ -13,6 +13,15 @@ const formatCreatorName = (email) => {
     .join(' ');
 };
 
+const parseToLocalDate = (dateStr) => {
+  if (!dateStr) return new Date();
+  let s = dateStr.toString().trim();
+  if (!s.endsWith('Z') && !/[+-]\d{2}:\d{2}$/.test(s)) {
+    s += 'Z';
+  }
+  return new Date(s);
+};
+
 export default function QuotationList() {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
@@ -165,7 +174,7 @@ export default function QuotationList() {
   const getCustomerStatus = (customerId) => {
     const quotes = quotesByCustomer[customerId] || [];
     if (quotes.length === 0) return 'DRAFT';
-    const sorted = [...quotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sorted = [...quotes].sort((a, b) => parseToLocalDate(b.createdAt) - parseToLocalDate(a.createdAt));
     return (sorted[0].status || 'DRAFT').toUpperCase();
   };
 
@@ -175,7 +184,7 @@ export default function QuotationList() {
     if (quotes.length === 0) {
       return cust.project?.budget ? cust.project.budget : 150000;
     }
-    const sorted = [...quotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sorted = [...quotes].sort((a, b) => parseToLocalDate(b.createdAt) - parseToLocalDate(a.createdAt));
     return sorted[0].totalAmount || sorted[0].subtotal || 150000;
   };
 
@@ -185,25 +194,34 @@ export default function QuotationList() {
     if (quotes.length === 0) {
       return cust.project?.workType || 'Lump Sum Quote';
     }
-    const sorted = [...quotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sorted = [...quotes].sort((a, b) => parseToLocalDate(b.createdAt) - parseToLocalDate(a.createdAt));
     return sorted[0].projectUnit || cust.project?.workType || 'Lump Sum Quote';
   };
 
   const getLatestQuoteId = (customerId) => {
     const quotes = quotesByCustomer[customerId] || [];
     if (quotes.length === 0) return null;
-    const sorted = [...quotes].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const sorted = [...quotes].sort((a, b) => parseToLocalDate(b.createdAt) - parseToLocalDate(a.createdAt));
     return sorted[0].id;
   };
 
   // Filter tab counting
-  const draftsCount = customers.filter(c => getCustomerStatus(c.id) === 'DRAFT').length;
-  const sentCount = customers.filter(c => getCustomerStatus(c.id) === 'SENT' || getCustomerStatus(c.id) === 'ONGOING').length;
-  const approvedCount = customers.filter(c => getCustomerStatus(c.id) === 'APPROVED' || getCustomerStatus(c.id) === 'COMPLETED').length;
+  const draftsCount = customers.filter(c => {
+    const status = getCustomerStatus(c.id);
+    return status === 'DRAFT' || status === 'ENQUIRY';
+  }).length;
+  const sentCount = customers.filter(c => {
+    const status = getCustomerStatus(c.id);
+    return status === 'SENT' || status === 'ONGOING';
+  }).length;
+  const approvedCount = customers.filter(c => {
+    const status = getCustomerStatus(c.id);
+    return status === 'APPROVED' || status === 'COMPLETED';
+  }).length;
 
   const filteredCustomers = customers.filter(cust => {
     const status = getCustomerStatus(cust.id);
-    if (filterTab === 'DRAFT') return status === 'DRAFT';
+    if (filterTab === 'DRAFT') return status === 'DRAFT' || status === 'ENQUIRY';
     if (filterTab === 'SENT') return status === 'SENT' || status === 'ONGOING';
     if (filterTab === 'APPROVED') return status === 'APPROVED' || status === 'COMPLETED';
     return true;
@@ -238,7 +256,7 @@ export default function QuotationList() {
     }}>
       <Navbar />
 
-      <div className="container py-4 px-4" style={{ maxWidth: '1440px' }}>
+      <div className="container-fluid py-4 px-lg-5 px-3">
         {/* Header Block */}
         <div className="row align-items-center mb-4">
           <div className="col-md-6 mb-3 mb-md-0">
@@ -544,7 +562,7 @@ export default function QuotationList() {
                                   const getRevisions = (parentQuoteId) => {
                                     return quotes
                                       .filter(q => q.parentQuotationId === parentQuoteId)
-                                      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+                                      .sort((a, b) => parseToLocalDate(a.createdAt) - parseToLocalDate(b.createdAt));
                                   };
 
                                   return rootQuotes.map((q) => {
@@ -564,8 +582,8 @@ export default function QuotationList() {
                                                 <i className={`fas ${isQuoteExpanded ? 'fa-minus-square' : 'fa-plus-square'}`}></i>
                                               </button>
                                             )}
-                                            <span className="fw-semibold text-dark">{new Date(q.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
-                                            <div className="text-secondary small font-monospace">{new Date(q.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                            <span className="fw-semibold text-dark">{parseToLocalDate(q.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}</span>
+                                            <div className="text-secondary small font-monospace">{parseToLocalDate(q.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                             {revisions.length > 0 && (
                                               <span className="badge bg-secondary ms-2" style={{ fontSize: '9px' }}>
                                                 {revisions.length} {revisions.length === 1 ? 'Rev' : 'Revs'}
@@ -632,7 +650,7 @@ export default function QuotationList() {
                                           <tr key={rev.id} className="bg-light-subtle border-bottom" style={{ borderColor: '#f1f5f9' }}>
                                             <td className="ps-5 py-2 align-middle text-secondary font-monospace" style={{ fontSize: '12px' }}>
                                               <i className="fas fa-level-up-alt fa-rotate-90 me-2 text-muted"></i>
-                                              {new Date(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} {new Date(rev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                              {parseToLocalDate(rev.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })} {parseToLocalDate(rev.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </td>
                                             <td className="py-2 align-middle text-muted" style={{ fontSize: '12px' }}>{formatCreatorName(rev.createdBy)}</td>
                                             <td className="py-2 align-middle text-center">

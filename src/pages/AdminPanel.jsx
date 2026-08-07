@@ -22,6 +22,9 @@ export default function AdminPanel() {
   const [selectedRoles, setSelectedRoles] = useState(['ROLE_USER']);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
+  const [usersSearch, setUsersSearch] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
 
   // Admins State (Super Admin only)
   const [admins, setAdmins] = useState([]);
@@ -566,43 +569,71 @@ export default function AdminPanel() {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: '#f8fafc',
       minHeight: '100vh',
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
+      fontFamily: "'Inter', sans-serif"
     }}>
       <Navbar />
 
-      <div className="container py-5">
-        {/* Tab Controls */}
+      <div className="container-fluid py-5 px-lg-5 px-3">
+        {/* Header Section */}
+        <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <div>
+            <h2 className="fw-bold text-dark mb-1" style={{ fontSize: '28px', letterSpacing: '-0.02em', color: '#111827' }}>User Directory</h2>
+            <p className="text-secondary mb-0 small">Overview of your user access.</p>
+          </div>
+          <div className="d-flex align-items-center gap-2">
+            <div className="position-relative">
+              <i className="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-secondary" style={{ pointerEvents: 'none' }}></i>
+              <input 
+                type="text" 
+                placeholder="Search users..." 
+                className="form-control rounded ps-5 border" 
+                style={{ width: '260px', height: '40px', background: '#ffffff', fontSize: '14px', borderColor: '#e5e7eb' }}
+                value={usersSearch}
+                onChange={(e) => setUsersSearch(e.target.value)}
+              />
+            </div>
+            <button className="btn btn-white border d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', background: '#ffffff', borderColor: '#e5e7eb' }}>
+              <i className="fas fa-sliders-h text-secondary"></i>
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Selection */}
         <div className="mb-4 d-flex flex-wrap gap-2">
           <button 
-            className={`btn px-4 fw-bold ${activeTab === 'users' ? 'btn-light text-primary shadow' : 'btn-outline-light'}`}
+            className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'users' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('users')}
+            style={activeTab === 'users' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
           >
-            👥 System Users
+            <i className="fas fa-users"></i> Users
           </button>
           
           {isSuperAdmin && (
             <button 
-              className={`btn px-4 fw-bold ${activeTab === 'admins' ? 'btn-light text-primary shadow' : 'btn-outline-light'}`}
+              className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'admins' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
               onClick={() => setActiveTab('admins')}
+              style={activeTab === 'admins' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
             >
-              🔒 System Admins
+              <i className="fas fa-user-cog"></i> Admins
             </button>
           )}
 
           <button 
-            className={`btn px-4 fw-bold ${activeTab === 'approvals' ? 'btn-light text-primary shadow' : 'btn-outline-light'}`}
+            className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'approvals' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('approvals')}
+            style={activeTab === 'approvals' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
           >
-            ✔️ Approvals List
+            <i className="fas fa-list"></i> Approvals
           </button>
 
           <button 
-            className={`btn px-4 fw-bold ${activeTab === 'boq' ? 'btn-light text-primary shadow' : 'btn-outline-light'}`}
+            className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'boq' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('boq')}
+            style={activeTab === 'boq' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
           >
-            📊 BOQ Import Portal
+            <i className="fas fa-upload"></i> Import
           </button>
         </div>
 
@@ -613,11 +644,7 @@ export default function AdminPanel() {
           {activeTab === 'users' && (
             <>
               <div className="col-lg-8">
-                <div className="card border-0 shadow-lg p-4 bg-white" style={{ borderRadius: '12px', minHeight: '500px' }}>
-                  <h3 className="text-primary fw-bold mb-4 border-bottom pb-2">
-                    <i className="fas fa-users-cog me-2"></i> User Directory
-                  </h3>
-
+                <div className="card border-0 shadow-sm p-0 bg-white" style={{ borderRadius: '8px', overflow: 'hidden' }}>
                   {usersLoading ? (
                     <div className="text-center py-5">
                       <span className="spinner-border text-primary" role="status"></span>
@@ -627,68 +654,132 @@ export default function AdminPanel() {
                     <p className="text-muted text-center py-5">No user records found.</p>
                   ) : (
                     <div className="table-responsive">
-                      <table className="table table-hover align-middle mb-4">
-                        <thead>
-                          <tr className="table-primary text-secondary small">
-                            <th className="ps-3">Email Address</th>
-                            <th>Roles</th>
-                            <th>Registered</th>
-                            <th className="text-center">Status</th>
-                            <th className="text-center">Actions</th>
+                      <table className="table align-middle mb-0">
+                        <thead className="bg-light">
+                          <tr style={{ fontSize: '11px', color: '#6b7280', letterSpacing: '0.05em', borderBottom: '1px solid #f3f4f6' }}>
+                            <th className="ps-4 py-3 fw-semibold">USER / EMAIL</th>
+                            <th className="py-3 fw-semibold">ROLE</th>
+                            <th className="py-3 fw-semibold">REGISTERED</th>
+                            <th className="py-3 fw-semibold">STATUS</th>
+                            <th className="py-3 fw-semibold">ACTION</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {users.map((u) => {
-                             const isSubUser = u.parentAdminId && u.roles && u.roles.includes('ROLE_USER') && !u.roles.includes('ROLE_ADMIN') && !u.roles.includes('ROLE_SUPER_ADMIN');
-                             return (
-                               <tr key={u.id} className="small">
-                                 <td className={isSubUser ? "ps-5 text-secondary" : "ps-3 fw-bold text-dark"}>
-                                   {isSubUser && <span className="text-muted me-2">└─</span>}
-                                   {u.email}
-                                 </td>
-                              <td>
-                                {u.roles.map(r => (
-                                  <span key={r} className={`badge me-1 ${r === 'ROLE_SUPER_ADMIN' ? 'bg-danger' : r === 'ROLE_ADMIN' ? 'bg-warning text-dark' : 'bg-secondary'}`}>
-                                    {r.replace('ROLE_', '')}
-                                  </span>
-                                ))}
-                              </td>
-                              <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                              <td className="text-center">
-                                <span className={`badge ${u.enabled ? 'bg-success' : 'bg-dark'}`}>
-                                  {u.enabled ? 'ACTIVE' : 'BLOCKED'}
-                                </span>
-                              </td>
-                              <td className="text-center">
-                                <button 
-                                  className={`btn btn-sm ${u.enabled ? 'btn-outline-dark' : 'btn-outline-success'} me-1 py-1`}
-                                  onClick={() => handleToggleUserStatus(u.id)}
-                                >
-                                  {u.enabled ? 'Block' : 'Unblock'}
-                                </button>
-                                {isSuperAdmin && (
-                                  <button 
-                                    className="btn btn-sm btn-outline-danger py-1"
-                                    onClick={() => handleDeleteUser(u.id, u.email)}
-                                  >
-                                    Delete
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                         })}
+                          {users
+                            .filter(u => u.email.toLowerCase().includes(usersSearch.toLowerCase()))
+                            .map((u) => {
+                              // Display formatting
+                              const namePart = u.email.split('@')[0];
+                              const displayName = namePart.split(/[\._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+                              const userCode = `#USR-${u.id.substring(0, 4).toUpperCase()}`;
+
+                              return (
+                                <tr key={u.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                                  <td className="ps-4 py-3">
+                                    <div className="d-flex flex-column">
+                                      <span className="fw-semibold text-dark" style={{ fontSize: '14px' }}>{displayName}</span>
+                                      <span className="text-muted" style={{ fontSize: '12px' }}>{userCode} ({u.email})</span>
+                                    </div>
+                                  </td>
+                                  <td className="py-3">
+                                    {u.roles.map(r => {
+                                      const label = r === 'ROLE_SUPER_ADMIN' ? 'Super Admin' : r === 'ROLE_ADMIN' ? 'Admin' : 'Viewer';
+                                      const isSuper = r === 'ROLE_SUPER_ADMIN';
+                                      return (
+                                        <span 
+                                          key={r} 
+                                          className="badge font-medium" 
+                                          style={isSuper ? {
+                                            border: '1px solid #ef4444',
+                                            borderRadius: '6px',
+                                            padding: '4px 8px',
+                                            color: '#ef4444',
+                                            background: 'transparent',
+                                            fontSize: '11px'
+                                          } : {
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '6px',
+                                            padding: '4px 8px',
+                                            color: '#4b5563',
+                                            background: 'transparent',
+                                            fontSize: '11px'
+                                          }}
+                                        >
+                                          {label}
+                                        </span>
+                                      );
+                                    })}
+                                  </td>
+                                  <td className="py-3 text-secondary" style={{ fontSize: '13px' }}>
+                                    {new Date(u.createdAt).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </td>
+                                  <td className="py-3">
+                                    <span 
+                                      className="badge rounded-pill fw-semibold" 
+                                      style={u.enabled ? {
+                                        backgroundColor: '#ecfdf5',
+                                        color: '#059669',
+                                        fontSize: '12px',
+                                        padding: '4px 10px'
+                                      } : {
+                                        backgroundColor: '#eff6ff',
+                                        color: '#2563eb',
+                                        fontSize: '12px',
+                                        padding: '4px 10px'
+                                      }}
+                                    >
+                                      {u.enabled ? 'Active' : 'suspended'}
+                                    </span>
+                                  </td>
+                                  <td className="py-3">
+                                    <div className="d-flex gap-2">
+                                      <button 
+                                        className="btn btn-link text-secondary p-0 border-0" 
+                                        type="button"
+                                        title={u.enabled ? 'Block User' : 'Unblock User'}
+                                        onClick={() => handleToggleUserStatus(u.id)}
+                                      >
+                                        <i className="fas fa-ban" style={{ fontSize: '14px' }}></i>
+                                      </button>
+                                      <button 
+                                        className="btn btn-link text-secondary p-0 border-0" 
+                                        type="button"
+                                        title="Edit User"
+                                        onClick={() => alert('Edit profile details feature is under development.')}
+                                      >
+                                        <i className="far fa-edit" style={{ fontSize: '14px' }}></i>
+                                      </button>
+                                      {isSuperAdmin && (
+                                        <button 
+                                          className="btn btn-link text-secondary p-0 border-0 text-danger-hover" 
+                                          type="button"
+                                          title="Delete User"
+                                          onClick={() => handleDeleteUser(u.id, u.email)}
+                                        >
+                                          <i className="far fa-trash-alt text-danger" style={{ fontSize: '14px' }}></i>
+                                        </button>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
                       </table>
 
                       {/* Pagination */}
                       {usersTotalPages > 1 && (
-                        <div className="d-flex justify-content-center gap-1">
+                        <div className="d-flex justify-content-center gap-1 py-3 bg-light border-top">
                           {Array.from({ length: usersTotalPages }, (_, idx) => (
                             <button 
                               key={idx} 
-                              className={`btn btn-sm ${usersPage === idx ? 'btn-primary' : 'btn-outline-primary'}`}
+                              className={`btn btn-sm px-3 rounded ${usersPage === idx ? 'btn-primary' : 'btn-outline-secondary'}`}
                               onClick={() => fetchUsers(idx)}
+                              style={usersPage === idx ? { backgroundColor: '#2563eb' } : {}}
                             >
                               {idx + 1}
                             </button>
@@ -700,24 +791,53 @@ export default function AdminPanel() {
                 </div>
               </div>
 
+              {/* Side Card: Register User */}
               <div className="col-lg-4">
-                <div className="card border-0 shadow-lg p-4 bg-white" style={{ borderRadius: '12px' }}>
-                  <h4 className="text-primary fw-bold mb-4 border-bottom pb-2">
-                    <i className="fas fa-user-plus me-2"></i> Register New User
-                  </h4>
+                <div className="card border-0 shadow-sm p-4 bg-white" style={{ borderRadius: '8px' }}>
+                  <div className="d-flex align-items-center gap-2 mb-1">
+                    <i className="fas fa-user-plus text-secondary" style={{ fontSize: '18px' }}></i>
+                    <h4 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>New User</h4>
+                  </div>
+                  <p className="text-secondary small mb-4">Provision access for a new team member.</p>
 
                   {formError && (
-                    <div className="alert alert-danger py-2 text-center small mb-3" role="alert">
+                    <div className="alert alert-danger py-2 text-center small mb-3 animate-fade-in" role="alert">
                       {formError}
                     </div>
                   )}
 
                   <form onSubmit={handleCreateUserSubmit}>
                     <div className="mb-3">
-                      <label className="form-label text-dark fw-semibold small">Email Address *</label>
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>First Name</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="e.g. Jane"
+                        style={{ height: '40px', fontSize: '14px' }}
+                        value={firstName}
+                        onChange={e => setFirstName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Last Name</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="e.g. Doe"
+                        style={{ height: '40px', fontSize: '14px' }}
+                        value={lastName}
+                        onChange={e => setLastName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Email Address *</label>
                       <input 
                         type="email" 
                         className="form-control" 
+                        placeholder="jane.doe@example.com"
+                        style={{ height: '40px', fontSize: '14px' }}
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         required 
@@ -725,60 +845,50 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="mb-3">
-                      <label className="form-label text-dark fw-semibold small">Password *</label>
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Password *</label>
                       <input 
                         type="password" 
                         className="form-control" 
+                        placeholder="••••••••"
+                        style={{ height: '40px', fontSize: '14px' }}
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         required 
                       />
                     </div>
 
-                    <div className="mb-4">
-                      <label className="form-label text-dark fw-semibold small d-block">Assign Roles *</label>
-                      <div className="form-check mb-1">
-                        <input 
-                          className="form-check-input" 
-                          type="checkbox" 
-                          id="roleUser" 
-                          checked={selectedRoles.includes('ROLE_USER')}
-                          onChange={() => handleRoleCheckbox('ROLE_USER')}
-                        />
-                        <label className="form-check-label small" htmlFor="roleUser">Standard User (ROLE_USER)</label>
-                      </div>
-                      
-                      {isSuperAdmin && (
-                        <>
-                          <div className="form-check mb-1">
-                            <input 
-                              className="form-check-input" 
-                              type="checkbox" 
-                              id="roleAdmin" 
-                              checked={selectedRoles.includes('ROLE_ADMIN')}
-                              onChange={() => handleRoleCheckbox('ROLE_ADMIN')}
-                            />
-                            <label className="form-check-label small" htmlFor="roleAdmin">System Admin (ROLE_ADMIN)</label>
-                          </div>
-                          <div className="form-check">
-                            <input 
-                              className="form-check-input" 
-                              type="checkbox" 
-                              id="roleSuperAdmin" 
-                              checked={selectedRoles.includes('ROLE_SUPER_ADMIN')}
-                              onChange={() => handleRoleCheckbox('ROLE_SUPER_ADMIN')}
-                            />
-                            <label className="form-check-label small" htmlFor="roleSuperAdmin">Super Admin (ROLE_SUPER_ADMIN)</label>
-                          </div>
-                        </>
-                      )}
+                    <div className="mb-3">
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Primary Role *</label>
+                      <select 
+                        className="form-select"
+                        style={{ height: '40px', fontSize: '14px' }}
+                        value={selectedRoles[0] || 'ROLE_USER'}
+                        onChange={(e) => setSelectedRoles([e.target.value])}
+                      >
+                        <option value="ROLE_USER">Viewer</option>
+                        {isSuperAdmin && <option value="ROLE_ADMIN">Admin</option>}
+                        {isSuperAdmin && <option value="ROLE_SUPER_ADMIN">Super Admin</option>}
+                      </select>
+                    </div>
+
+                    <div className="form-check mb-4">
+                      <input 
+                        className="form-check-input" 
+                        type="checkbox" 
+                        id="sendWelcomeEmail" 
+                        defaultChecked 
+                      />
+                      <label className="form-check-label text-secondary" htmlFor="sendWelcomeEmail" style={{ fontSize: '12px' }}>
+                        Send welcome email <br />
+                        <span className="text-muted" style={{ fontSize: '10px' }}>Includes temporary login link.</span>
+                      </label>
                     </div>
 
                     <button 
                       type="submit" 
                       className="btn btn-primary w-100 fw-bold py-2" 
                       disabled={formLoading}
-                      style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                      style={{ backgroundColor: '#2563eb', border: 'none', height: '44px' }}
                     >
                       {formLoading ? 'Registering...' : 'Register User'}
                     </button>
@@ -1071,22 +1181,25 @@ export default function AdminPanel() {
             <>
               {/* BOQ Sub-Tabs */}
               <div className="col-12 mb-3">
-                <div className="d-flex gap-2 p-1 bg-white bg-opacity-25 rounded-3" style={{ width: 'fit-content' }}>
+                <div className="d-flex gap-2 p-1 bg-white border rounded-3" style={{ width: 'fit-content', borderColor: '#e5e7eb' }}>
                   <button
-                    className={`btn btn-sm px-3 fw-bold ${boqSubTab === 'import' ? 'btn-light text-primary shadow-sm' : 'btn-link text-white text-decoration-none'}`}
+                    className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('import')}
+                    style={boqSubTab === 'import' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📊 Excel Upload & Import Log
                   </button>
                   <button
-                    className={`btn btn-sm px-3 fw-bold ${boqSubTab === 'manual' ? 'btn-light text-primary shadow-sm' : 'btn-link text-white text-decoration-none'}`}
+                    className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('manual')}
+                    style={boqSubTab === 'manual' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     ➕ Add Single BOQ Item
                   </button>
                   <button
-                    className={`btn btn-sm px-3 fw-bold ${boqSubTab === 'imported_data' ? 'btn-light text-primary shadow-sm' : 'btn-link text-white text-decoration-none'}`}
+                    className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('imported_data')}
+                    style={boqSubTab === 'imported_data' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📚 Imported DATA
                   </button>

@@ -57,7 +57,7 @@ export default function QuotationView() {
     }}>
       <Navbar />
 
-      <div className="container py-5">
+      <div className="container-fluid py-5 px-lg-5 px-3">
         <div className="card border-0 shadow-lg p-4 mx-auto" style={{ borderRadius: '12px', maxWidth: '850px', background: 'white' }}>
           
           {loading ? (

@@ -56,48 +56,46 @@ export default function Home() {
     fetchDashboardStats();
   }, [highestRole]);
 
-  // Load Recent Quotations for User
+  // Load Recent Quotations for all roles
   useEffect(() => {
-    if (highestRole === 'USER') {
-      const fetchRecentQuotations = async () => {
-        setLoadingQuotes(true);
-        try {
-          const custRes = await API.get('/customers', {
-            params: { page: 0, size: 20 }
-          });
-          const customersList = custRes.data.content || [];
-          
-          let allQuotes = [];
-          for (const cust of customersList) {
-            try {
-              const quoteRes = await API.get(`/quotations/customer/${cust.id}`, {
-                params: { page: 0, size: 10 }
-              });
-              const quotesList = quoteRes.data.content || [];
-              const quotesWithCustomer = quotesList.map(q => ({
-                ...q,
-                customerId: cust.id,
-                customerName: cust.name,
-                projectUnit: q.projectUnit || cust.project?.workType || 'Architectural Design'
-              }));
-              allQuotes.push(...quotesWithCustomer);
-            } catch (err) {
-              console.error(`Failed to fetch quotations for customer ${cust.id}`, err);
-            }
+    const fetchRecentQuotations = async () => {
+      setLoadingQuotes(true);
+      try {
+        const custRes = await API.get('/customers', {
+          params: { page: 0, size: 20 }
+        });
+        const customersList = custRes.data.content || [];
+        
+        let allQuotes = [];
+        for (const cust of customersList) {
+          try {
+            const quoteRes = await API.get(`/quotations/customer/${cust.id}`, {
+              params: { page: 0, size: 10 }
+            });
+            const quotesList = quoteRes.data.content || [];
+            const quotesWithCustomer = quotesList.map(q => ({
+              ...q,
+              customerId: cust.id,
+              customerName: cust.name,
+              projectUnit: q.projectUnit || cust.project?.workType || 'Architectural Design'
+            }));
+            allQuotes.push(...quotesWithCustomer);
+          } catch (err) {
+            console.error(`Failed to fetch quotations for customer ${cust.id}`, err);
           }
-          
-          // Sort by date descending
-          allQuotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          setRecentQuotes(allQuotes);
-        } catch (err) {
-          console.error("Failed to load recent quotations", err);
-        } finally {
-          setLoadingQuotes(false);
         }
-      };
-      fetchRecentQuotations();
-    }
-  }, [highestRole]);
+        
+        // Sort by date descending
+        allQuotes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setRecentQuotes(allQuotes);
+      } catch (err) {
+        console.error("Failed to load recent quotations", err);
+      } finally {
+        setLoadingQuotes(false);
+      }
+    };
+    fetchRecentQuotations();
+  }, []);
 
   const handleDeleteQuotation = async (customerId, quoteId) => {
     if (window.confirm('Are you sure you want to delete this quotation estimation sheet?')) {
@@ -132,144 +130,7 @@ export default function Home() {
     return <span className="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-1 fw-bold" style={{ fontSize: '11px' }}>Draft</span>;
   };
 
-  // If Admin/Super Admin, render original indigo dashboard style
-  if (highestRole !== 'USER') {
-    return (
-      <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        minHeight: '100vh',
-        fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-      }}>
-        <Navbar />
 
-        <div className="container py-5">
-          {/* Welcome Card */}
-          <div className="card border-0 shadow-lg p-4 mb-4" style={{ borderRadius: '12px' }}>
-            <div className="card-body">
-              <h1 className="fw-bold text-primary mb-3">
-                Welcome, {formattedUserName}!
-              </h1>
-              <p className="text-secondary mb-4">
-                You have successfully logged in. This is your personal dashboard where you can manage estimations,
-                view customer records, and review statistics in real-time.
-              </p>
-              <div className="p-3 border-start border-primary border-4 bg-light rounded">
-                <p className="mb-2 text-dark"><span className="fw-bold text-primary">Email:</span> {email}</p>
-                <p className="mb-2 text-dark"><span className="fw-bold text-primary">Login Time:</span> {loginTime}</p>
-                <p className="mb-0 text-dark">
-                  <span className="fw-bold text-primary">Role:</span>{' '}
-                  <span className="badge bg-info text-capitalize me-2">
-                    {highestRole.toLowerCase().replace('_', ' ')}
-                  </span>
-                  <span className="badge bg-success">Active Session</span>
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Dynamic Analytics Block */}
-          <div className="mb-4">
-            <h3 className="text-white fw-bold mb-3"><i className="fas fa-chart-line me-2"></i> Dashboard Analytics</h3>
-            {loadingStats ? (
-              <div className="text-center py-4 text-white">
-                <span className="spinner-border" role="status"></span>
-                <p className="mt-2 small">Loading dashboard statistics...</p>
-              </div>
-            ) : stats ? (
-              <div className="row g-3">
-                {highestRole === 'SUPER_ADMIN' && (
-                  <>
-                    <div className="col-md-4 col-sm-6">
-                      <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                        <div className="fs-1 text-primary">💼</div>
-                        <h5 className="fw-bold text-secondary mt-2">Total Admins</h5>
-                        <p className="fs-3 fw-bold text-dark mb-0">{stats.totalAdmins || 0}</p>
-                      </div>
-                    </div>
-                    <div className="col-md-4 col-sm-6">
-                      <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                        <div className="fs-1 text-info">👥</div>
-                        <h5 className="fw-bold text-secondary mt-2">Total Users</h5>
-                        <p className="fs-3 fw-bold text-dark mb-0">{stats.totalUsers || 0}</p>
-                      </div>
-                    </div>
-                    <div className="col-md-4 col-sm-6">
-                      <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                        <div className="fs-1 text-warning">⚠️</div>
-                        <h5 className="fw-bold text-secondary mt-2">Pending Approvals</h5>
-                        <p className="fs-3 fw-bold text-danger mb-0">{stats.totalPendingApprovals || 0}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {highestRole === 'ADMIN' && (
-                  <div className="col-md-4 col-sm-6">
-                    <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                      <div className="fs-1 text-primary">👥</div>
-                      <h5 className="fw-bold text-secondary mt-2">Total Customers</h5>
-                      <p className="fs-3 fw-bold text-dark mb-0">{stats.totalCustomers || 0}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="col-md-4 col-sm-6">
-                  <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                    <div className="fs-1 text-warning">📄</div>
-                    <h5 className="fw-bold text-secondary mt-2">Total Quotations</h5>
-                    <p className="fs-3 fw-bold text-dark mb-0">{stats.totalQuotations || 0}</p>
-                  </div>
-                </div>
-
-                <div className="col-md-4 col-sm-6">
-                  <div className="card border-0 shadow-sm p-3 text-center" style={{ borderRadius: '10px' }}>
-                    <div className="fs-1 text-success">💰</div>
-                    <h5 className="fw-bold text-secondary mt-2">Total Revenue</h5>
-                    <p className="fs-3 fw-bold text-dark mb-0">₹{stats.totalQuotationAmount ? stats.totalQuotationAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="alert alert-warning text-center small">No stats available.</div>
-            )}
-          </div>
-
-          {/* Feature Grid */}
-          <div className="row g-4 mt-2">
-            <div className="col-md-4">
-              <Link to="/quotations" className="text-decoration-none">
-                <div className="card border-0 shadow p-4 text-center h-100 feature-card bg-white" style={{ borderRadius: '10px', transition: 'all 0.3s ease' }}>
-                  <div className="fs-1 mb-2">📄</div>
-                  <h4 className="fw-bold text-primary">Quotation Portal</h4>
-                  <p className="text-secondary small mb-0">Start a new quotation or manage saved estimations.</p>
-                </div>
-              </Link>
-            </div>
-
-            <div className="col-md-4">
-              <div className="card border-0 shadow p-4 text-center h-100 bg-white" style={{ borderRadius: '10px' }}>
-                <div className="fs-1 mb-2">🔒</div>
-                <h4 className="fw-bold text-primary">Security Settings</h4>
-                <p className="text-secondary small mb-0">Manage password configurations and review access history.</p>
-              </div>
-            </div>
-
-            <div className="col-md-4">
-              <div className="card border-0 shadow p-4 text-center h-100 bg-white" style={{ borderRadius: '10px' }}>
-                <div className="fs-1 mb-2">📊</div>
-                <h4 className="fw-bold text-primary">User Analytics</h4>
-                <p className="text-secondary small mb-0">Inspect personal stats and check active quotas.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <footer className="text-center py-4 text-white-50 mt-5">
-          <p className="mb-0">&copy; 2026 User Portal. All rights reserved.</p>
-        </footer>
-      </div>
-    );
-  }
 
   // Premium, Architectural Pipeline Dashboard View for Regular User
   return (
@@ -280,7 +141,7 @@ export default function Home() {
     }}>
       <Navbar />
 
-      <div className="container py-4 px-4" style={{ maxWidth: '1440px' }}>
+      <div className="container-fluid py-4 px-lg-5 px-3">
         {/* Header Block */}
         <div className="row align-items-center mb-4">
           <div className="col-md-6 mb-3 mb-md-0">
