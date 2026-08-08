@@ -68,17 +68,15 @@ export default function Navbar() {
                 Dashboard
               </Link>
             </li>
-            {!isAdmin && (
-              <li className="nav-item">
-                <Link 
-                  className={`nav-link px-3 fw-semibold ${location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
-                  to="/quotations"
-                  style={{ transition: 'color 0.2s', paddingBottom: location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? '8px' : '6px' }}
-                >
-                  Quotations
-                </Link>
-              </li>
-            )}
+            <li className="nav-item">
+              <Link 
+                className={`nav-link px-3 fw-semibold ${location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
+                to="/quotations"
+                style={{ transition: 'color 0.2s', paddingBottom: location.pathname.startsWith('/quotations') && !location.pathname.includes('customer') ? '8px' : '6px' }}
+              >
+                Quotations
+              </Link>
+            </li>
             <li className="nav-item">
               <Link 
                 className={`nav-link px-3 fw-semibold ${location.pathname.includes('customer-details') ? 'text-primary border-bottom border-primary border-2' : 'text-secondary'}`} 
@@ -120,8 +118,7 @@ export default function Navbar() {
 
             {/* Notification Bell */}
             <button className="btn btn-light btn-sm rounded-circle p-2 border position-relative" style={{ width: '38px', height: '38px' }} onClick={() => alert('No new notifications.')}>
-              <i className="far fa-bell text-secondary fs-6"></i>
-              <span className="position-absolute top-2 start-2 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
+              <i className="fas fa-bell text-secondary fs-6"></i>
             </button>
 
             {/* Settings Icon */}

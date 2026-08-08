@@ -53,11 +53,13 @@ export default function AdminPanel() {
   const [boqTotalPages, setBoqTotalPages] = useState(0);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [uploadQuotationType, setUploadQuotationType] = useState('BUDGET_QUOTE');
   const [boqSubTab, setBoqSubTab] = useState('import'); // 'import', 'manual', or 'imported_data'
 
   // Imported BOQ Data State
   const [importedItems, setImportedItems] = useState([]);
   const [importedSearch, setImportedSearch] = useState('');
+  const [importedQuotationTypeFilter, setImportedQuotationTypeFilter] = useState('');
   const [importedPage, setImportedPage] = useState(0);
   const [importedTotalPages, setImportedTotalPages] = useState(0);
   const [loadingImported, setLoadingImported] = useState(false);
@@ -68,6 +70,7 @@ export default function AdminPanel() {
   const [editUnit, setEditUnit] = useState('SQ.FT.');
   const [editRate, setEditRate] = useState('');
   const [editStatus, setEditStatus] = useState('APPROVED');
+  const [editQuotationType, setEditQuotationType] = useState('BUDGET_QUOTE');
   const [updatingItem, setUpdatingItem] = useState(false);
 
   // Manual BOQ Form State
@@ -76,6 +79,7 @@ export default function AdminPanel() {
   const [manualDescription, setManualDescription] = useState('');
   const [manualUnit, setManualUnit] = useState('SQ.FT.');
   const [manualRate, setManualRate] = useState('');
+  const [manualQuotationType, setManualQuotationType] = useState('BUDGET_QUOTE');
   const [manualSubmitting, setManualSubmitting] = useState(false);
   const [manualError, setManualError] = useState('');
   const [existingApprovedItems, setExistingApprovedItems] = useState([]);
@@ -152,12 +156,14 @@ export default function AdminPanel() {
   };
 
   // Fetch Imported BOQ Items
-  const fetchImportedItems = async (pageNumber = 0, searchQuery = importedSearch) => {
+  const fetchImportedItems = async (pageNumber = 0, searchQuery = importedSearch, qTypeFilter = importedQuotationTypeFilter) => {
     setLoadingImported(true);
     try {
-      const res = await API.get('/boq/items', {
-        params: { page: pageNumber, size: 10, search: searchQuery }
-      });
+      const params = { page: pageNumber, size: 10, search: searchQuery };
+      if (qTypeFilter) {
+        params.quotationType = qTypeFilter;
+      }
+      const res = await API.get('/boq/items', { params });
       setImportedItems(res.data.content || []);
       setImportedTotalPages(res.data.totalPages || 0);
       setImportedPage(pageNumber);
@@ -176,6 +182,7 @@ export default function AdminPanel() {
     setEditUnit(item.unit || 'SQ.FT.');
     setEditRate(item.rate || '');
     setEditStatus(item.status || 'APPROVED');
+    setEditQuotationType(item.quotationType || 'BUDGET_QUOTE');
   };
 
   const handleUpdateBoqItem = async (e) => {
@@ -189,7 +196,8 @@ export default function AdminPanel() {
         description: editDescription,
         unit: editUnit,
         rate: parseFloat(editRate) || 0,
-        status: editStatus
+        status: editStatus,
+        quotationType: editQuotationType
       });
       alert('BOQ item updated successfully!');
       setEditItem(null);
@@ -463,6 +471,7 @@ export default function AdminPanel() {
 
     const formData = new FormData();
     formData.append('file', selectedFile);
+    formData.append('quotationType', uploadQuotationType);
 
     setUploadLoading(true);
     try {
@@ -549,7 +558,8 @@ export default function AdminPanel() {
         subHeading: manualSubHeading,
         description: manualDescription,
         unit: manualUnit,
-        rate: parseFloat(manualRate)
+        rate: parseFloat(manualRate),
+        quotationType: manualQuotationType
       });
       alert('BOQ item created successfully!');
       setManualMainHeading('');
@@ -1280,8 +1290,23 @@ export default function AdminPanel() {
                       </h4>
 
                       <form onSubmit={handleUploadFile}>
+                        <div className="mb-3">
+                          <label className="form-label text-dark fw-semibold small">Quotation Type / Price Category *</label>
+                          <select 
+                            className="form-select" 
+                            style={{ borderRadius: '8px', fontSize: '13px', padding: '10px' }}
+                            value={uploadQuotationType}
+                            onChange={(e) => setUploadQuotationType(e.target.value)}
+                            required
+                          >
+                            <option value="BUDGET_QUOTE">Budget Quote</option>
+                            <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
+                            <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
+                          </select>
+                        </div>
+
                         <div className="mb-4">
-                          <label className="form-label text-dark fw-semibold small">Choose Spreadsheet File (.xlsx)</label>
+                          <label className="form-label text-dark fw-semibold small">Choose Spreadsheet File (.xlsx) *</label>
                           <input 
                             type="file" 
                             id="boqFileInput"
@@ -1299,7 +1324,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2 mb-3"
                           disabled={uploadLoading}
-                          style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
                         >
                           {uploadLoading ? 'Uploading...' : 'Upload & Process'}
                         </button>
@@ -1380,6 +1405,20 @@ export default function AdminPanel() {
                           />
                         </div>
 
+                        <div className="mb-3">
+                          <label className="form-label text-dark fw-semibold small">Quotation Type / Price Category *</label>
+                          <select 
+                            className="form-select" 
+                            value={manualQuotationType}
+                            onChange={e => setManualQuotationType(e.target.value)}
+                            required
+                          >
+                            <option value="BUDGET_QUOTE">Budget Quote</option>
+                            <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
+                            <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
+                          </select>
+                        </div>
+
                         <div className="row g-3 mb-4">
                           <div className="col-md-6">
                             <label className="form-label text-dark fw-semibold small">Unit *</label>
@@ -1423,7 +1462,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2" 
                           disabled={manualSubmitting}
-                          style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
                         >
                           {manualSubmitting ? 'Saving...' : 'Add BOQ Item'}
                         </button>
@@ -1467,12 +1506,27 @@ export default function AdminPanel() {
                       <h3 className="text-primary fw-bold mb-0">
                         <i className="fas fa-database me-2"></i> Master Imported BOQ Library
                       </h3>
-                      <div className="d-flex gap-2 align-items-center" style={{ minWidth: '300px' }}>
-                        <div className="input-group">
+                      <div className="d-flex gap-2 align-items-center flex-wrap" style={{ minWidth: '350px' }}>
+                        <select 
+                          className="form-select form-select-sm" 
+                          style={{ width: '180px', borderRadius: '6px', height: '31px', fontSize: '12px' }}
+                          value={importedQuotationTypeFilter}
+                          onChange={e => {
+                            setImportedQuotationTypeFilter(e.target.value);
+                            fetchImportedItems(0, importedSearch, e.target.value);
+                          }}
+                        >
+                          <option value="">All Price Categories</option>
+                          <option value="BUDGET_QUOTE">Budget Quote</option>
+                          <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
+                          <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
+                        </select>
+
+                        <div className="input-group input-group-sm" style={{ width: '220px' }}>
                           <input 
                             type="text" 
                             className="form-control form-control-sm" 
-                            placeholder="Search headings or description..."
+                            placeholder="Search headings..."
                             value={importedSearch}
                             onChange={e => {
                               setImportedSearch(e.target.value);
@@ -1512,7 +1566,8 @@ export default function AdminPanel() {
                               <tr className="table-light text-secondary">
                                 <th className="ps-3 py-2">Category (Main Heading)</th>
                                 <th className="py-2">Item Name (Subheading)</th>
-                                <th className="py-2" style={{ maxWidth: '300px' }}>Specification (Description)</th>
+                                <th className="py-2" style={{ width: '140px' }}>Price Category</th>
+                                <th className="py-2" style={{ maxWidth: '260px' }}>Specification (Description)</th>
                                 <th className="py-2 text-center" style={{ width: '80px' }}>Unit</th>
                                 <th className="py-2 text-end" style={{ width: '100px' }}>Rate (₹)</th>
                                 <th className="py-2 text-center" style={{ width: '120px' }}>Status</th>
@@ -1524,7 +1579,13 @@ export default function AdminPanel() {
                                 <tr key={item.id}>
                                   <td className="ps-3 py-2 fw-semibold text-dark">{item.mainHeading}</td>
                                   <td className="py-2 text-secondary">{item.subHeading}</td>
-                                  <td className="py-2 text-muted" style={{ maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.description}>
+                                  <td className="py-2">
+                                    {item.quotationType === 'BUDGET_QUOTE' && <span className="badge rounded-pill bg-success-subtle text-success px-2 py-1" style={{ border: '1px solid', fontSize: '11px' }}>Budget Quote</span>}
+                                    {item.quotationType === 'PREMIUM_RANGE_QUOTE' && <span className="badge rounded-pill bg-primary-subtle text-primary px-2 py-1" style={{ border: '1px solid', fontSize: '11px' }}>Premium Range</span>}
+                                    {item.quotationType === 'ULTRA_LUXURY_QUOTE' && <span className="badge rounded-pill bg-warning-subtle px-2 py-1" style={{ border: '1px solid', color: '#854d0e', backgroundColor: '#fef9c3', fontSize: '11px' }}>Ultra Luxury</span>}
+                                    {!item.quotationType && <span className="text-muted small">-</span>}
+                                  </td>
+                                  <td className="py-2 text-muted" style={{ maxWidth: '260px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.description}>
                                     {item.description || <em className="text-light-muted">No description</em>}
                                   </td>
                                   <td className="py-2 text-center text-secondary fw-semibold">{item.unit}</td>
@@ -1638,6 +1699,20 @@ export default function AdminPanel() {
                         />
                       </div>
 
+                      <div className="mb-3">
+                        <label className="form-label text-dark fw-semibold small">Quotation Type / Price Category *</label>
+                        <select 
+                          className="form-select" 
+                          value={editQuotationType}
+                          onChange={e => setEditQuotationType(e.target.value)}
+                          required
+                        >
+                          <option value="BUDGET_QUOTE">Budget Quote</option>
+                          <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
+                          <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
+                        </select>
+                      </div>
+
                       <div className="row g-3 mb-4">
                         <div className="col-md-6">
                           <label className="form-label text-dark fw-semibold small">Unit</label>
@@ -1685,7 +1760,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-50 fw-bold"
                           disabled={updatingItem}
-                          style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', border: 'none' }}
+                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
                         >
                           {updatingItem ? 'Saving...' : 'Save Changes'}
                         </button>

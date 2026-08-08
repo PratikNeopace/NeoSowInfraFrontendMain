@@ -18,14 +18,27 @@ export default function Home() {
 
   // Today's Focus states
   const [focusItems, setFocusItems] = useState([
-    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#2563eb' },
-    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6' },
-    { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b' }
+    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#2563eb', completed: false },
+    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6', completed: false },
+    { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b', completed: false }
   ]);
   const [showFocusModal, setShowFocusModal] = useState(false);
   const [newFocusTitle, setNewFocusTitle] = useState('');
   const [newFocusSub, setNewFocusSub] = useState('');
   const [newFocusColor, setNewFocusColor] = useState('#2563eb');
+
+  const toggleCompleteFocusItem = (index) => {
+    setFocusItems(prev => prev.map((item, idx) => {
+      if (idx === index) {
+        return { ...item, completed: !item.completed };
+      }
+      return item;
+    }));
+  };
+
+  const handleDeleteFocusItem = (index) => {
+    setFocusItems(prev => prev.filter((_, idx) => idx !== index));
+  };
 
   const handleAddFocusItem = (e) => {
     e.preventDefault();
@@ -35,7 +48,8 @@ export default function Home() {
       {
         title: newFocusTitle.trim(),
         sub: newFocusSub.trim() || 'No details provided',
-        color: newFocusColor
+        color: newFocusColor,
+        completed: false
       }
     ]);
     setNewFocusTitle('');
@@ -439,16 +453,66 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="d-flex flex-column gap-3 mb-4 mt-2">
-                {focusItems.map((item, index) => (
-                  <div key={index} className="d-flex gap-3 align-items-start">
-                    <span className="p-1 rounded-circle mt-2" style={{ backgroundColor: item.color, width: '8px', height: '8px' }}></span>
-                    <div>
-                      <h6 className="fw-bold text-dark mb-1" style={{ fontSize: '14px' }}>{item.title}</h6>
-                      <p className="text-secondary mb-0" style={{ fontSize: '12px' }}>{item.sub}</p>
+              <div className="d-flex flex-column gap-2 mb-4 mt-2">
+                {focusItems.length === 0 ? (
+                  <p className="text-secondary small text-center py-4 my-0">No focus items. Add one above!</p>
+                ) : (
+                  focusItems.map((item, index) => (
+                    <div key={index} className="d-flex justify-content-between align-items-center p-2 rounded hover-focus-item" style={{ transition: 'all 0.2s', border: '1px solid #f1f5f9' }}>
+                      <div className="d-flex gap-3 align-items-start" style={{ overflow: 'hidden' }}>
+                        <span 
+                          onClick={() => toggleCompleteFocusItem(index)}
+                          style={{ 
+                            cursor: 'pointer',
+                            marginTop: '4px',
+                            display: 'inline-block'
+                          }}
+                        >
+                          {item.completed ? (
+                            <i className="fas fa-check-circle text-success" style={{ fontSize: '13px' }}></i>
+                          ) : (
+                            <span className="d-inline-block rounded-circle" style={{ backgroundColor: item.color, width: '10px', height: '10px' }} />
+                          )}
+                        </span>
+                        <div style={{ overflow: 'hidden' }}>
+                          <h6 className="fw-bold mb-1" style={{ 
+                            fontSize: '13px', 
+                            color: item.completed ? '#94a3b8' : '#1e293b',
+                            textDecoration: item.completed ? 'line-through' : 'none',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>{item.title}</h6>
+                          <p className="mb-0 text-secondary" style={{ 
+                            fontSize: '11px',
+                            textDecoration: item.completed ? 'line-through' : 'none',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                          }}>{item.sub}</p>
+                        </div>
+                      </div>
+                      <div className="d-flex gap-1 flex-shrink-0 ms-2">
+                        <button 
+                          className="btn btn-link p-1 text-secondary" 
+                          style={{ fontSize: '12px' }}
+                          onClick={() => toggleCompleteFocusItem(index)}
+                          title={item.completed ? "Mark Active" : "Mark Done"}
+                        >
+                          <i className={`fas ${item.completed ? 'fa-undo-alt' : 'fa-check'} text-muted`}></i>
+                        </button>
+                        <button 
+                          className="btn btn-link p-1 text-danger" 
+                          style={{ fontSize: '12px' }}
+                          onClick={() => handleDeleteFocusItem(index)}
+                          title="Delete Focus"
+                        >
+                          <i className="far fa-trash-alt"></i>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
 
               <button 

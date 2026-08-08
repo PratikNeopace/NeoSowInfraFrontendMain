@@ -38,6 +38,29 @@ export default function QuotationBuilder() {
   const [parentQuotationId, setParentQuotationId] = useState(null);
   const [loadingQuotation, setLoadingQuotation] = useState(false);
   const [approvedItems, setApprovedItems] = useState([]);
+  const [quotationType, setQuotationType] = useState('BUDGET_QUOTE');
+
+  const fetchApprovedItems = async (qType) => {
+    try {
+      const boqRes = await API.get('/boq/approved', {
+        params: { quotationType: qType }
+      });
+      const rawItems = boqRes.data || [];
+      const seen = new Set();
+      const fetchedApproved = rawItems.filter(item => {
+        if (!item.subHeading) return false;
+        const key = item.subHeading.toLowerCase().trim();
+        const duplicate = seen.has(key);
+        seen.add(key);
+        return !duplicate;
+      });
+      setApprovedItems(fetchedApproved);
+      return fetchedApproved;
+    } catch (err) {
+      console.error('Failed to fetch approved BOQ categories', err);
+      return [];
+    }
+  };
 
   useEffect(() => {
     const loadAllData = async () => {
@@ -51,27 +74,17 @@ export default function QuotationBuilder() {
         setCustomer(customerRes.data);
 
         // 2. Fetch approved items
-        let fetchedApproved = [];
-        try {
-          const boqRes = await API.get('/boq/approved');
-          const rawItems = boqRes.data || [];
-          const seen = new Set();
-          fetchedApproved = rawItems.filter(item => {
-            if (!item.subHeading) return false;
-            const key = item.subHeading.toLowerCase().trim();
-            const duplicate = seen.has(key);
-            seen.add(key);
-            return !duplicate;
-          });
-          setApprovedItems(fetchedApproved);
-        } catch (err) {
-          console.error('Failed to fetch approved BOQ categories', err);
-        }
+        let fetchedApproved = await fetchApprovedItems(quotationType);
 
         // 3. Fetch quotation if revising
         if (reviseId) {
           const quoteRes = await API.get(`/quotations/${reviseId}`);
           const qData = quoteRes.data || {};
+
+          if (qData.quotationType) {
+            setQuotationType(qData.quotationType);
+            fetchedApproved = await fetchApprovedItems(qData.quotationType);
+          }
 
           // Set top-level configuration
           setProjectUnit(qData.projectUnit || 'Ft Inch');
@@ -585,6 +598,7 @@ export default function QuotationBuilder() {
     return {
       customerId,
       projectUnit,
+      quotationType,
       subtotal,
       discount,
       discountPercent: discountType === 'percent' ? discountInputVal : null,
@@ -755,6 +769,25 @@ export default function QuotationBuilder() {
                 </div>
                 {unitLocked && <span className="text-muted small ms-auto"><i className="fas fa-lock me-1"></i> Mode locked (table active)</span>}
               </div>
+
+              {/* Pricing Category Selector */}
+              <div className="border-top pt-4 mt-3 d-flex align-items-center gap-3">
+                <span className="fw-bold text-dark mb-0 small me-2">Pricing Category:</span>
+                <select
+                  className="form-select form-select-sm"
+                  style={{ width: '220px', borderRadius: '8px' }}
+                  value={quotationType}
+                  onChange={(e) => {
+                    setQuotationType(e.target.value);
+                    fetchApprovedItems(e.target.value);
+                  }}
+                >
+                  <option value="BUDGET_QUOTE">Budget Quote</option>
+                  <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
+                  <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
+                </select>
+                <span className="text-secondary small ms-2"><i className="fas fa-info-circle me-1"></i> Filters items to selected price category</span>
+              </div>
             </div>
           ) : null}
 
@@ -862,12 +895,12 @@ export default function QuotationBuilder() {
                           </td>
                           <td>
                             <div className="d-flex flex-column">
-                              <span className="fw-semibold text-dark">{item.qty.toFixed(2)} {item.unit}</span>
+                              <span className="fw-semibold text-dark">{Number(item.qty).toFixed(2)} {item.unit}</span>
                               <span className="text-secondary small">({item.noOfUnit} No.)</span>
                             </div>
                           </td>
                           <td>
-                            <span className="text-dark">₹{item.unitRate.toFixed(2)} / {item.unit}</span>
+                            <span className="text-dark">₹{Number(item.unitRate || 0).toFixed(2)} / {item.unit}</span>
                           </td>
                           <td className="text-end fw-bold text-dark pe-3">
                             ₹{item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -921,13 +954,25 @@ export default function QuotationBuilder() {
                                           }}
                                           style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
                                         >
-                                          <option value="">Choose Category...</option>
-                                          {filteredApprovedItems.map((ai, idx) => (
-                                            <option key={idx} value={ai.subHeading}>
-                                              {ai.subHeading} {ai.isNew ? '(New)' : ''}
-                                            </option>
-                                          ))}
-                                          <option value="others">Other (Specify)</option>
+                                          <option value="">Select Category...</option>
+                                          
+                                          {filteredApprovedItems.length > 0 && (
+                                            <optgroup label="Pre-approved Categories">
+                                              {filteredApprovedItems.map((ai, idx) => (
+                                                <option key={idx} value={ai.subHeading}>
+                                                  {ai.subHeading} {ai.isNew ? '(New)' : ''}
+                                                </option>
+                                              ))}
+                                            </optgroup>
+                                          )}
+
+                                          <optgroup label="Custom Categories">
+                                            <option value="partitions">Partitions</option>
+                                            <option value="doors">Doors</option>
+                                            <option value="windows">Windows</option>
+                                            <option value="ceilings">Ceilings</option>
+                                            <option value="others">Others</option>
+                                          </optgroup>
                                         </select>
                                       </div>
 
