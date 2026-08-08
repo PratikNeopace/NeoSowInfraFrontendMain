@@ -18,14 +18,19 @@ export default function Home() {
 
   // Today's Focus states
   const [focusItems, setFocusItems] = useState([
-    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#2563eb', completed: false },
-    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6', completed: false },
-    { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b', completed: false }
+    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#2563eb', completed: false, date: new Date().toISOString().split('T')[0], time: '11:00' },
+    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6', completed: false, date: new Date().toISOString().split('T')[0], time: '17:00' },
+    { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b', completed: false, date: new Date().toISOString().split('T')[0], time: '15:00' }
   ]);
   const [showFocusModal, setShowFocusModal] = useState(false);
   const [newFocusTitle, setNewFocusTitle] = useState('');
   const [newFocusSub, setNewFocusSub] = useState('');
   const [newFocusColor, setNewFocusColor] = useState('#2563eb');
+  const [newFocusDate, setNewFocusDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [newFocusTime, setNewFocusTime] = useState(() => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  });
 
   const toggleCompleteFocusItem = (index) => {
     setFocusItems(prev => prev.map((item, idx) => {
@@ -49,12 +54,19 @@ export default function Home() {
         title: newFocusTitle.trim(),
         sub: newFocusSub.trim() || 'No details provided',
         color: newFocusColor,
-        completed: false
+        completed: false,
+        date: newFocusDate,
+        time: newFocusTime
       }
     ]);
     setNewFocusTitle('');
     setNewFocusSub('');
     setNewFocusColor('#2563eb');
+    setNewFocusDate(new Date().toISOString().split('T')[0]);
+    setNewFocusTime(() => {
+      const now = new Date();
+      return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    });
     setShowFocusModal(false);
   };
 
@@ -295,13 +307,6 @@ export default function Home() {
             </p>
           </div>
           <div className="col-md-6 text-md-end d-flex gap-2 justify-content-md-end align-items-center">
-            <button 
-              className="btn btn-outline-secondary btn-sm px-3 py-2 fw-semibold d-flex align-items-center gap-2 border bg-white text-dark"
-              style={{ borderRadius: '8px', fontSize: '14px' }}
-              onClick={() => alert('Import configuration feature is under development.')}
-            >
-              <i className="fas fa-file-import text-muted"></i> Import
-            </button>
             
             <Link 
               to="/customer-details" 
@@ -386,7 +391,7 @@ export default function Home() {
                   <p className="mb-0" style={{ fontSize: '14px' }}>No recent quotations found.</p>
                 </div>
               ) : (
-                <div className="table-responsive">
+                <div className="table-responsive" style={{ maxHeight: '320px', overflowY: 'auto' }}>
                   <table className="table table-borderless align-middle mb-0">
                     <thead>
                       <tr className="border-bottom" style={{ borderColor: '#f1f5f9' }}>
@@ -453,7 +458,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="d-flex flex-column gap-2 mb-4 mt-2">
+              <div className="d-flex flex-column gap-2 mb-4 mt-2" style={{ maxHeight: '260px', overflowY: 'auto', paddingRight: '4px' }}>
                 {focusItems.length === 0 ? (
                   <p className="text-secondary small text-center py-4 my-0">No focus items. Add one above!</p>
                 ) : (
@@ -490,6 +495,13 @@ export default function Home() {
                             overflow: 'hidden',
                             textOverflow: 'ellipsis'
                           }}>{item.sub}</p>
+                          {(item.date || item.time) && (
+                            <span className="text-muted d-flex align-items-center gap-1 mt-1 font-monospace" style={{ fontSize: '10px' }}>
+                              <i className="far fa-calendar-alt text-secondary"></i>
+                              {item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
+                              {item.time ? ` @ ${item.time}` : ''}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="d-flex gap-1 flex-shrink-0 ms-2">
@@ -617,6 +629,31 @@ export default function Home() {
                   value={newFocusSub}
                   onChange={(e) => setNewFocusSub(e.target.value)}
                 />
+              </div>
+
+              <div className="row g-3 mb-3">
+                <div className="col-6">
+                  <label className="form-label fw-semibold text-secondary" style={{ fontSize: '13px' }}>Date *</label>
+                  <input 
+                    type="date" 
+                    className="form-control" 
+                    style={{ borderRadius: '8px', fontSize: '14px', padding: '10px' }} 
+                    value={newFocusDate}
+                    onChange={(e) => setNewFocusDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="col-6">
+                  <label className="form-label fw-semibold text-secondary" style={{ fontSize: '13px' }}>Time *</label>
+                  <input 
+                    type="time" 
+                    className="form-control" 
+                    style={{ borderRadius: '8px', fontSize: '14px', padding: '10px' }} 
+                    value={newFocusTime}
+                    onChange={(e) => setNewFocusTime(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="mb-4">

@@ -408,7 +408,7 @@ export default function QuotationList() {
                         </div>
                       </div>
 
-                      {/* Middle Project Details */}
+                      {/* Middle Project Details */} 
                       <div className="d-flex align-items-center gap-5 flex-wrap flex-grow-1 justify-content-lg-center" style={{ minWidth: '250px' }}>
                         <div>
                           <span className="text-uppercase text-secondary d-block fw-bold" style={{ fontSize: '10px', letterSpacing: '0.05em' }}>Project Type</span>
@@ -654,7 +654,16 @@ export default function QuotationList() {
                                             </td>
                                             <td className="py-2 align-middle text-muted" style={{ fontSize: '12px' }}>{formatCreatorName(rev.createdBy)}</td>
                                             <td className="py-2 align-middle text-center">
-                                              <span className="badge rounded-pill bg-secondary-subtle text-secondary px-3 py-1" style={{ fontSize: '10px' }}>Revision</span>
+                                              <select 
+                                                className="form-select form-select-sm py-1 d-inline-block w-auto"
+                                                value={(rev.status || 'ENQUIRY').toUpperCase()}
+                                                onChange={(e) => handleStatusChange(cust.id, rev.id, e.target.value)}
+                                                style={{ ...getStatusSelectStyle(rev.status), fontSize: '11px', padding: '2px 24px 2px 8px', borderRadius: '4px' }}
+                                              >
+                                                <option value="ENQUIRY">Enquiry</option>
+                                                <option value="ONGOING">Ongoing</option>
+                                                <option value="COMPLETED">Completed</option>
+                                              </select>
                                             </td>
                                             <td className="py-2 align-middle text-muted" style={{ fontSize: '12px' }}>{rev.projectUnit}</td>
                                             <td className="py-2 align-middle text-end text-muted" style={{ fontSize: '12px' }}>₹{rev.subtotal ? rev.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>

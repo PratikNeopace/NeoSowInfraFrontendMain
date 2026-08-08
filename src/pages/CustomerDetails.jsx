@@ -217,27 +217,10 @@ export default function CustomerDetails() {
           >
             <i className="fas fa-chevron-left"></i> Back
           </button>
-          
-          <div className="d-flex align-items-center gap-2">
-            <button 
-              className="btn btn-outline-secondary btn-sm px-3 py-2 fw-semibold bg-white text-dark border d-flex align-items-center gap-2"
-              style={{ borderRadius: '8px', fontSize: '14px' }}
-              onClick={() => alert('Import configuration is under development.')}
-            >
-              <i className="fas fa-file-import text-muted"></i> Import
-            </button>
-            <button 
-              className="btn btn-light btn-sm p-2 border" 
-              style={{ borderRadius: '8px', width: '38px', height: '38px' }}
-              onClick={() => alert('Quick Actions is under development.')}
-            >
-              <i className="fas fa-ellipsis-h text-secondary"></i>
-            </button>
-          </div>
         </div>
 
         {/* Customer Form Card Container */}
-        <div className="card border-0 shadow-sm bg-white mx-auto overflow-hidden mb-5" style={{ borderRadius: '16px', maxWidth: '880px' }}>
+        <div className="card border-0 shadow-sm bg-white mx-auto overflow-hidden mb-5" style={{ borderRadius: '16px', width: '100%' }}>
           
           {/* Main Card Header */}
           <div className="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">

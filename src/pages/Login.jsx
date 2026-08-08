@@ -89,6 +89,7 @@ export default function Login() {
       localStorage.setItem('userEmail', response.data.email);
       localStorage.setItem('userRoles', JSON.stringify(response.data.roles));
       localStorage.setItem('loginTime', new Date().toLocaleString());
+      localStorage.setItem('userPassword', password);
 
       navigate('/');
     } catch (err) {
