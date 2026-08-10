@@ -235,7 +235,7 @@ export default function Profile() {
                   type="submit" 
                   disabled={loading}
                   className="btn btn-primary px-4 py-2 fw-semibold" 
-                  style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#2563eb', border: 'none' }}
+                  style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
                 >
                   {loading ? 'Updating...' : 'Update Password'}
                 </button>

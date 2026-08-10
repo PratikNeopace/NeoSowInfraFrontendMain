@@ -227,7 +227,7 @@ export default function CustomerDetails() {
             <div className="d-flex align-items-center gap-3">
               <div 
                 className="rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle" 
-                style={{ width: '48px', height: '48px', color: '#2563eb' }}
+                style={{ width: '48px', height: '48px', color: '#006A4E' }}
               >
                 <i className="fas fa-user-plus fs-5"></i>
               </div>
@@ -608,7 +608,7 @@ export default function CustomerDetails() {
                       type="submit" 
                       className="btn btn-primary px-4 py-2 fw-semibold" 
                       disabled={loading}
-                      style={{ borderRadius: '8px', height: '42px', fontSize: '14px', backgroundColor: '#2563eb', border: 'none' }}
+                      style={{ borderRadius: '8px', height: '42px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
                     >
                       {loading ? (
                         <>

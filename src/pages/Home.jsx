@@ -18,14 +18,14 @@ export default function Home() {
 
   // Today's Focus states
   const [focusItems, setFocusItems] = useState([
-    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#2563eb', completed: false, date: new Date().toISOString().split('T')[0], time: '11:00' },
-    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6', completed: false, date: new Date().toISOString().split('T')[0], time: '17:00' },
+    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#006A4E', completed: false, date: new Date().toISOString().split('T')[0], time: '11:00' },
+    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#d1e7e2', completed: false, date: new Date().toISOString().split('T')[0], time: '17:00' },
     { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b', completed: false, date: new Date().toISOString().split('T')[0], time: '15:00' }
   ]);
   const [showFocusModal, setShowFocusModal] = useState(false);
   const [newFocusTitle, setNewFocusTitle] = useState('');
   const [newFocusSub, setNewFocusSub] = useState('');
-  const [newFocusColor, setNewFocusColor] = useState('#2563eb');
+  const [newFocusColor, setNewFocusColor] = useState('#006A4E');
   const [newFocusDate, setNewFocusDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [newFocusTime, setNewFocusTime] = useState(() => {
     const now = new Date();
@@ -61,7 +61,7 @@ export default function Home() {
     ]);
     setNewFocusTitle('');
     setNewFocusSub('');
-    setNewFocusColor('#2563eb');
+    setNewFocusColor('#006A4E');
     setNewFocusDate(new Date().toISOString().split('T')[0]);
     setNewFocusTime(() => {
       const now = new Date();
@@ -311,7 +311,7 @@ export default function Home() {
             <Link 
               to="/customer-details" 
               className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2"
-              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#2563eb', border: 'none' }}
+              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
             >
               <i className="fas fa-plus"></i> New Quotation
             </Link>
@@ -377,7 +377,7 @@ export default function Home() {
             <div className="card border-0 shadow-sm p-4 bg-white h-100" style={{ borderRadius: '12px' }}>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>Recent Quotations</h4>
-                <Link to="/quotations" className="text-decoration-none fw-semibold" style={{ fontSize: '13px', color: '#2563eb' }}>View all</Link>
+                <Link to="/quotations" className="text-decoration-none fw-semibold" style={{ fontSize: '13px', color: '#006A4E' }}>View all</Link>
               </div>
 
               {loadingQuotes ? (
@@ -570,7 +570,7 @@ export default function Home() {
                       <div className="rounded-top" style={{ 
                         height: bar.height, 
                         width: '28px',
-                        backgroundColor: bar.active ? '#2563eb' : '#dbeafe', 
+                        backgroundColor: bar.active ? '#006A4E' : '#d1e7e2', 
                         transition: 'all 0.3s ease',
                         cursor: 'pointer'
                       }} title={`${bar.month}: ₹${bar.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
@@ -660,8 +660,8 @@ export default function Home() {
                 <label className="form-label fw-semibold text-secondary d-block mb-2" style={{ fontSize: '13px' }}>Category Color</label>
                 <div className="d-flex gap-2">
                   {[
-                    { value: '#2563eb', name: 'Blue (Task)' },
-                    { value: '#3b82f6', name: 'Light Blue (Prep)' },
+                    { value: '#006A4E', name: 'Green (Task)' },
+                    { value: '#d1e7e2', name: 'Light Green (Prep)' },
                     { value: '#f59e0b', name: 'Orange (Site Visit)' },
                     { value: '#10b981', name: 'Green (Completed)' },
                     { value: '#ef4444', name: 'Red (Urgent)' }
@@ -699,7 +699,7 @@ export default function Home() {
                 <button 
                   type="submit" 
                   className="btn btn-primary px-4 py-2 fw-semibold" 
-                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#2563eb', border: 'none' }}
+                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
                 >
                   Add Item
                 </button>
@@ -764,13 +764,13 @@ export default function Home() {
                       padding: '6px 0',
                       borderRadius: '8px',
                       cursor: 'pointer',
-                      backgroundColor: isSelected ? '#2563eb' : 'transparent',
+                      backgroundColor: isSelected ? '#006A4E' : 'transparent',
                       color: isSelected 
                         ? '#fff' 
                         : dayObj.isCurrentMonth 
                           ? '#1e293b' 
                           : '#cbd5e1',
-                      border: isToday && !isSelected ? '1px solid #2563eb' : 'none',
+                      border: isToday && !isSelected ? '1px solid #006A4E' : 'none',
                       transition: 'all 0.15s ease',
                       position: 'relative'
                     }}

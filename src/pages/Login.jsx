@@ -246,7 +246,7 @@ export default function Login() {
                     href="#" 
                     onClick={(e) => { e.preventDefault(); alert('Password reset feature coming soon!'); }} 
                     className="text-decoration-none fw-bold"
-                    style={{ color: '#2563eb', fontSize: '11px' }}
+                    style={{ color: '#006A4E', fontSize: '11px' }}
                   >
                     Forgot password?
                   </a>
@@ -330,7 +330,7 @@ export default function Login() {
                 href="#" 
                 onClick={(e) => { e.preventDefault(); alert('Please contact system administrator to request account onboarding.'); }} 
                 className="fw-bold text-decoration-none ms-1"
-                style={{ color: '#2563eb' }}
+                style={{ color: '#006A4E' }}
               >
                 REQUEST AN ACCOUNT
               </a>

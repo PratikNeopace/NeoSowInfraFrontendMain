@@ -78,7 +78,7 @@ export default function QuotationView() {
                 </Link>
                 <button 
                   className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2" 
-                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#2563eb', border: 'none' }}
+                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
                   onClick={handleDownloadPdf} 
                   disabled={downloading}
                 >

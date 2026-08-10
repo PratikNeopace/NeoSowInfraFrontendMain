@@ -49,3 +49,98 @@ body {
   font-size: 0.75rem;
   border-radius: 0.25rem;
 }
+
+/* =========================================================================
+   Theme Color Overrides (Blue -> #006A4E)
+   ========================================================================= */
+
+:root {
+  --bs-primary: #006A4E;
+  --bs-primary-rgb: 0, 106, 78;
+  --bs-link-color: #006A4E;
+  --bs-link-hover-color: #004d39;
+}
+
+/* Primary Button Customizations */
+.btn-primary {
+  background-color: #006A4E !important;
+  border-color: #006A4E !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover, 
+.btn-primary:focus, 
+.btn-primary:active, 
+.btn-primary.active {
+  background-color: #00503a !important;
+  border-color: #00503a !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(0, 106, 78, 0.25) !important;
+}
+
+/* Outline Buttons */
+.btn-outline-primary {
+  color: #006A4E !important;
+  border-color: #006A4E !important;
+}
+
+.btn-outline-primary:hover, 
+.btn-outline-primary:focus, 
+.btn-outline-primary:active, 
+.btn-outline-primary.active {
+  background-color: #006A4E !important;
+  border-color: #006A4E !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary:focus {
+  box-shadow: 0 0 0 0.25rem rgba(0, 106, 78, 0.25) !important;
+}
+
+/* Text and Background helper classes */
+.text-primary {
+  color: #006A4E !important;
+}
+
+.bg-primary {
+  background-color: #006A4E !important;
+}
+
+.border-primary {
+  border-color: #006A4E !important;
+}
+
+/* Table overrides */
+.table-primary {
+  --bs-table-bg: rgba(0, 106, 78, 0.08) !important;
+  --bs-table-color: #006A4E !important;
+  border-color: rgba(0, 106, 78, 0.15) !important;
+}
+
+.table-info {
+  --bs-table-bg: rgba(0, 106, 78, 0.05) !important;
+  --bs-table-color: #006A4E !important;
+  border-color: rgba(0, 106, 78, 0.1) !important;
+}
+
+/* Badges */
+.bg-primary-subtle {
+  background-color: rgba(0, 106, 78, 0.1) !important;
+  color: #006A4E !important;
+}
+
+.badge.bg-primary {
+  background-color: #006A4E !important;
+  color: #ffffff !important;
+}
+
+/* Link color overrides */
+a {
+  color: #006A4E;
+}
+a:hover {
+  color: #004d39;
+}

@@ -670,7 +670,7 @@ export default function QuotationBuilder() {
   if (loadingQuotation) {
     return (
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #006A4E 0%, #004d39 100%)',
         minHeight: '100vh',
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}>
@@ -1167,7 +1167,7 @@ export default function QuotationBuilder() {
                                       type="button" 
                                       className="btn btn-primary px-4" 
                                       onClick={() => toggleEditItem(item.id)}
-                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', backgroundColor: '#2563eb', border: 'none' }}
+                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', backgroundColor: '#006A4E', border: 'none' }}
                                     >
                                       Save Item
                                     </button>
@@ -1279,7 +1279,7 @@ export default function QuotationBuilder() {
                 className="btn btn-primary fw-semibold py-2 px-4" 
                 onClick={handleSaveQuotation}
                 disabled={submitting}
-                style={{ borderRadius: '8px', backgroundColor: '#2563eb', border: 'none' }}
+                style={{ borderRadius: '8px', backgroundColor: '#006A4E', border: 'none' }}
               >
                 {submitting ? <span className="spinner-border spinner-border-sm me-1"></span> : <i className="fas fa-save me-1"></i>}
                 {parentQuotationId ? 'Save & Go Back' : 'Save & Go Back'}

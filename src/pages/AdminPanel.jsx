@@ -615,7 +615,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'users' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('users')}
-            style={activeTab === 'users' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'users' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-users"></i> Users
           </button>
@@ -624,7 +624,7 @@ export default function AdminPanel() {
             <button 
               className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'admins' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
               onClick={() => setActiveTab('admins')}
-              style={activeTab === 'admins' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
+              style={activeTab === 'admins' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
             >
               <i className="fas fa-user-cog"></i> Admins
             </button>
@@ -633,7 +633,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'approvals' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('approvals')}
-            style={activeTab === 'approvals' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'approvals' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-list"></i> Approvals
           </button>
@@ -641,7 +641,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'boq' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('boq')}
-            style={activeTab === 'boq' ? { backgroundColor: '#2563eb' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'boq' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-upload"></i> Import
           </button>
@@ -737,7 +737,7 @@ export default function AdminPanel() {
                                         padding: '4px 10px'
                                       } : {
                                         backgroundColor: '#eff6ff',
-                                        color: '#2563eb',
+                                        color: '#006A4E',
                                         fontSize: '12px',
                                         padding: '4px 10px'
                                       }}
@@ -789,7 +789,7 @@ export default function AdminPanel() {
                               key={idx} 
                               className={`btn btn-sm px-3 rounded ${usersPage === idx ? 'btn-primary' : 'btn-outline-secondary'}`}
                               onClick={() => fetchUsers(idx)}
-                              style={usersPage === idx ? { backgroundColor: '#2563eb' } : {}}
+                              style={usersPage === idx ? { backgroundColor: '#006A4E' } : {}}
                             >
                               {idx + 1}
                             </button>
@@ -898,7 +898,7 @@ export default function AdminPanel() {
                       type="submit" 
                       className="btn btn-primary w-100 fw-bold py-2" 
                       disabled={formLoading}
-                      style={{ backgroundColor: '#2563eb', border: 'none', height: '44px' }}
+                      style={{ backgroundColor: '#006A4E', border: 'none', height: '44px' }}
                     >
                       {formLoading ? 'Registering...' : 'Register User'}
                     </button>
@@ -1195,21 +1195,21 @@ export default function AdminPanel() {
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('import')}
-                    style={boqSubTab === 'import' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'import' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📊 Excel Upload & Import Log
                   </button>
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('manual')}
-                    style={boqSubTab === 'manual' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'manual' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     ➕ Add Single BOQ Item
                   </button>
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('imported_data')}
-                    style={boqSubTab === 'imported_data' ? { backgroundColor: '#2563eb', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'imported_data' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📚 Imported DATA
                   </button>
@@ -1324,7 +1324,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2 mb-3"
                           disabled={uploadLoading}
-                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
                         >
                           {uploadLoading ? 'Uploading...' : 'Upload & Process'}
                         </button>
@@ -1462,7 +1462,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2" 
                           disabled={manualSubmitting}
-                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
                         >
                           {manualSubmitting ? 'Saving...' : 'Add BOQ Item'}
                         </button>
@@ -1760,7 +1760,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-50 fw-bold"
                           disabled={updatingItem}
-                          style={{ backgroundColor: '#2563eb', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
                         >
                           {updatingItem ? 'Saving...' : 'Save Changes'}
                         </button>

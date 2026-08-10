@@ -279,7 +279,7 @@ export default function QuotationList() {
             <Link 
               to="/customer-details" 
               className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2"
-              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#2563eb', border: 'none' }}
+              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
             >
               <i className="fas fa-plus"></i> New Quotation
             </Link>
@@ -378,7 +378,7 @@ export default function QuotationList() {
                   style={{ 
                     borderRadius: '12px', 
                     transition: 'all 0.2s',
-                    borderBottom: '3px solid #2563eb' 
+                    borderBottom: '3px solid #006A4E' 
                   }}
                 >
                   <div className="card-body p-4">
@@ -388,7 +388,7 @@ export default function QuotationList() {
                       <div className="d-flex align-items-center gap-3 flex-grow-1" style={{ minWidth: '300px' }}>
                         <div 
                           className="rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle" 
-                          style={{ width: '48px', height: '48px', minWidth: '48px', color: '#2563eb' }}
+                          style={{ width: '48px', height: '48px', minWidth: '48px', color: '#006A4E' }}
                         >
                           <i className="fas fa-drafting-compass fs-5"></i>
                         </div>
@@ -438,7 +438,7 @@ export default function QuotationList() {
                           <Link 
                             to={`/customer/${cust.id}/create-quotation`} 
                             className="btn btn-primary btn-sm px-3 py-2 fw-semibold d-flex align-items-center gap-2"
-                            style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#2563eb', border: 'none' }}
+                            style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
                           >
                             <i className="fas fa-plus"></i> Add Quote
                           </Link>
@@ -606,7 +606,7 @@ export default function QuotationList() {
                                           <td className="py-3 align-middle text-dark fw-semibold">{q.projectUnit}</td>
                                           <td className="py-3 align-middle text-end text-dark">₹{q.subtotal ? q.subtotal.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>
                                           <td className="py-3 align-middle text-end text-danger">- ₹{q.discount ? q.discount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>
-                                          <td className="py-3 align-middle text-end fw-bold" style={{ color: '#2563eb' }}>₹{q.totalAmount ? q.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>
+                                          <td className="py-3 align-middle text-end fw-bold" style={{ color: '#006A4E' }}>₹{q.totalAmount ? q.totalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</td>
                                           <td className="py-3 align-middle text-center">
                                             <div className="d-flex gap-2 justify-content-center">
                                               <button 
@@ -717,7 +717,7 @@ export default function QuotationList() {
                               <nav>
                                 <ul className="pagination pagination-sm mb-0">
                                   <li className="page-item disabled"><span className="page-link">&lt;</span></li>
-                                  <li className="page-item active"><span className="page-link" style={{ backgroundColor: '#2563eb', borderColor: '#2563eb' }}>1</span></li>
+                                  <li className="page-item active"><span className="page-link" style={{ backgroundColor: '#006A4E', borderColor: '#006A4E' }}>1</span></li>
                                   <li className="page-item"><span className="page-link">2</span></li>
                                   <li className="page-item"><span className="page-link">3</span></li>
                                   <li className="page-item"><span className="page-link">&gt;</span></li>
