@@ -143,7 +143,7 @@ export default function Login() {
     try {
       const baseURL = API_BASE_URL;
       await axios.post(`${baseURL}/auth/forgot-password`, { email });
-      setSuccessMessage('Verification code sent to your email.');
+      setSuccessMessage('Verification code sent to your registered mobile number.');
       setView('verify');
     } catch (err) {
       console.error('Forgot password failed: ', err);
@@ -324,14 +324,14 @@ export default function Login() {
             {view === 'forgot' && (
               <>
                 <h3 className="fw-bold text-dark mb-1" style={{ fontSize: '24px' }}>Forgot Password</h3>
-                <p className="text-secondary small mb-4">Enter your work email address and we'll send a 6-digit verification code.</p>
+                <p className="text-secondary small mb-4">Enter your work email address and we'll send a 6-digit verification code to your registered mobile number.</p>
               </>
             )}
 
             {view === 'verify' && (
               <>
                 <h3 className="fw-bold text-dark mb-1" style={{ fontSize: '24px' }}>Verify Code</h3>
-                <p className="text-secondary small mb-4">Enter the 6-digit verification code sent to your email.</p>
+                <p className="text-secondary small mb-4">Enter the 6-digit verification code sent to your registered mobile number.</p>
               </>
             )}
 
