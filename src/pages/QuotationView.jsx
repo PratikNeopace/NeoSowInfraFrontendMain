@@ -11,6 +11,7 @@ export default function QuotationView() {
   const [customer, setCustomer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
 
   useEffect(() => {
     const fetchQuotationData = async () => {
@@ -22,7 +23,7 @@ export default function QuotationView() {
         const custRes = await API.get(`/customers/${quoteRes.data.customerId}`);
         setCustomer(custRes.data);
       } catch (err) {
-        log.error('Failed to load quotation details', err);
+        console.error('Failed to load quotation details', err);
         alert('Quotation sheet not found.');
         navigate('/quotations');
       } finally {
@@ -42,10 +43,23 @@ export default function QuotationView() {
       link.download = `quotation_${quoteId}.pdf`;
       link.click();
     } catch (err) {
-      log.error('Failed to export PDF', err);
+      console.error('Failed to export PDF', err);
       alert('Error printing PDF.');
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleSendWhatsApp = async () => {
+    setSendingWhatsApp(true);
+    try {
+      await API.post(`/quotations/${quoteId}/whatsapp`);
+      alert('Quotation sent successfully to customer via WhatsApp!');
+    } catch (err) {
+      console.error('Failed to send quotation on WhatsApp', err);
+      alert(err.response?.data?.message || 'Error sending quotation on WhatsApp.');
+    } finally {
+      setSendingWhatsApp(false);
     }
   };
 
@@ -76,19 +90,34 @@ export default function QuotationView() {
                 >
                   <i className="fas fa-arrow-left"></i> Back to Quotations
                 </Link>
-                <button 
-                  className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2" 
-                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
-                  onClick={handleDownloadPdf} 
-                  disabled={downloading}
-                >
-                  {downloading ? (
-                    <span className="spinner-border spinner-border-sm"></span>
-                  ) : (
-                    <i className="fas fa-file-pdf"></i>
-                  )}
-                  Export PDF
-                </button>
+                <div className="d-flex gap-2">
+                  <button 
+                    className="btn btn-success btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2" 
+                    style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#25D366', border: 'none' }}
+                    onClick={handleSendWhatsApp} 
+                    disabled={sendingWhatsApp}
+                  >
+                    {sendingWhatsApp ? (
+                      <span className="spinner-border spinner-border-sm"></span>
+                    ) : (
+                      <i className="fab fa-whatsapp"></i>
+                    )}
+                    Send WhatsApp
+                  </button>
+                  <button 
+                    className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2" 
+                    style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
+                    onClick={handleDownloadPdf} 
+                    disabled={downloading}
+                  >
+                    {downloading ? (
+                      <span className="spinner-border spinner-border-sm"></span>
+                    ) : (
+                      <i className="fas fa-file-pdf"></i>
+                    )}
+                    Export PDF
+                  </button>
+                </div>
               </div>
 
               {/* Printable Invoice Container */}
@@ -148,61 +177,55 @@ export default function QuotationView() {
                           {item.subcategory && <span className="text-secondary"> - {item.subcategory}</span>}
                           {item.description && <div className="text-muted" style={{ fontSize: '10px' }}>{item.description}</div>}
                         </td>
-                        <td className="text-center text-dark">{item.width || '-'}</td>
-                        <td className="text-center text-dark">{item.height || '-'}</td>
-                        <td className="text-center text-dark">{item.depth || '-'}</td>
+                        <td className="text-center">{item.width}</td>
+                        <td className="text-center">{item.height}</td>
+                        <td className="text-center">{item.depth}</td>
                         <td className="text-center text-secondary">{item.unit}</td>
-                        <td className="text-center text-dark">{item.qty}</td>
-                        <td className="text-center text-secondary">{item.noOfUnit ? item.noOfUnit : '1.00'}</td>
-                        <td className="text-center fw-bold text-dark">{item.totalQty ? item.totalQty : item.qty}</td>
-                        <td className="text-end text-dark">₹{Number(item.unitRate).toFixed(2)}</td>
-                        <td className="text-end fw-bold text-dark">₹{Number(item.amount).toFixed(2)}</td>
+                        <td className="text-center">{item.qty}</td>
+                        <td className="text-center">{item.nos}</td>
+                        <td className="text-center fw-semibold">{item.totalQty}</td>
+                        <td className="text-end font-monospace">{item.rate.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td className="text-end font-monospace fw-semibold">{item.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
 
-                {/* Summary Calculations */}
-                <div className="d-flex justify-content-end mb-4">
-                  <table className="table table-sm border-0 mb-0" style={{ width: '320px' }}>
-                    <tbody>
-                      <tr className="border-0">
-                        <td className="border-0 text-secondary">Subtotal:</td>
-                        <td className="text-end border-0 fw-semibold text-dark">₹{quotation.subtotal.toFixed(2)}</td>
-                      </tr>
+                {/* Calculations Footer summary */}
+                <div className="row justify-content-end">
+                  <div className="col-lg-5 col-md-7 col-12">
+                    <div className="card bg-light border-0 p-3" style={{ borderRadius: '12px' }}>
+                      <div className="d-flex justify-content-between mb-2">
+                        <span className="text-secondary small">Subtotal Amount:</span>
+                        <span className="font-monospace fw-semibold text-dark">Rs. {quotation.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                      
                       {quotation.discount > 0 && (
-                        <tr className="border-0 text-danger">
-                          <td className="border-0">
-                            {quotation.discountPercent != null && quotation.discountPercent > 0 
-                              ? `Discount (${quotation.discountPercent}%):` 
-                              : 'Discount:'}
-                          </td>
-                          <td className="text-end border-0 fw-semibold">-₹{quotation.discount.toFixed(2)}</td>
-                        </tr>
+                        <div className="d-flex justify-content-between mb-2">
+                          <span className="text-danger small">Discount ({quotation.discountPercent}%):</span>
+                          <span className="font-monospace fw-semibold text-danger">- Rs. {quotation.discount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
                       )}
+
                       {quotation.includeGst && (
-                        <tr className="border-top">
-                          <td className="border-0 text-secondary">GST (18%):</td>
-                          <td className="text-end border-0 fw-semibold text-dark">₹{quotation.gstAmount.toFixed(2)}</td>
-                        </tr>
+                        <div className="d-flex justify-content-between mb-2 border-bottom pb-2">
+                          <span className="text-secondary small">GST Amount (18%):</span>
+                          <span className="font-monospace fw-semibold text-dark">Rs. {quotation.gstAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
                       )}
-                      <tr className="fw-bold border-top fs-6" style={{ backgroundColor: '#f8fafc', color: '#153325' }}>
-                        <td className="py-2 px-2">GRAND TOTAL:</td>
-                        <td className="text-end py-2 px-2" style={{ borderLeft: '3px solid #c5a059' }}>₹{quotation.totalAmount.toFixed(2)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
+
+                      <div className="d-flex justify-content-between align-items-center mt-2">
+                        <span className="fw-bold text-dark" style={{ fontSize: '15px' }}>Grand Total:</span>
+                        <span className="fw-bold text-success font-monospace" style={{ fontSize: '18px' }}>Rs. {quotation.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Footer Notes */}
-                <div className="p-3 rounded-3" style={{ fontSize: '12px', backgroundColor: '#f8fafc', borderLeft: '4px solid #c5a059' }}>
-                  <strong style={{ color: '#153325' }}>Terms &amp; Conditions:</strong> Valid for 30 days. Confirm via email. Thank you for your business!
-                </div>
               </div>
-
             </div>
           ) : (
-            <div className="text-center py-4 text-danger small">Error loading quotation sheet.</div>
+            <div className="text-center py-5 text-muted">No quotation detail loaded.</div>
           )}
 
         </div>
