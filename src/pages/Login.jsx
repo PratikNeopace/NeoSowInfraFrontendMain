@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../services/config';
+import logo from '../assets/logo.svg';
 
 export default function Login() {
   const navigate = useNavigate();
