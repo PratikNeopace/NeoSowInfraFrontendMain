@@ -19,6 +19,7 @@ export default function AdminPanel() {
   // New User Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [selectedRoles, setSelectedRoles] = useState(['ROLE_USER']);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -410,6 +411,7 @@ export default function AdminPanel() {
       alert('User registered successfully!');
       setEmail('');
       setPassword('');
+      setPhone('');
       setSelectedRoles(['ROLE_USER']);
       fetchUsers(usersPage);
     } catch (err) {
@@ -677,11 +679,12 @@ export default function AdminPanel() {
                         <tbody>
                           {users
                             .filter(u => u.email.toLowerCase().includes(usersSearch.toLowerCase()))
-                            .map((u) => {
+                            .map((u, index) => {
                               // Display formatting
                               const namePart = u.email.split('@')[0];
                               const displayName = namePart.split(/[\._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-                              const userCode = `#USR-${u.id.substring(0, 4).toUpperCase()}`;
+                              const rowNumber = (usersPage * 10) + index + 1;
+                              const userCode = `#${rowNumber}`;
 
                               return (
                                 <tr key={u.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
@@ -850,6 +853,19 @@ export default function AdminPanel() {
                         style={{ height: '40px', fontSize: '14px' }}
                         value={email}
                         onChange={e => setEmail(e.target.value)}
+                        required 
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Phone Number *</label>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        placeholder="+919876543210"
+                        style={{ height: '40px', fontSize: '14px' }}
+                        value={phone}
+                        onChange={e => setPhone(e.target.value)}
                         required 
                       />
                     </div>
