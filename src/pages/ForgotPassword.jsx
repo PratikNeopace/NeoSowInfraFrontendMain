@@ -20,7 +20,8 @@ export default function ForgotPassword() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { phone });
+      const formattedPhone = phone.startsWith('+91') ? phone : '+91' + phone.replace(/^91/, '');
+const response = await axios.post(`${API_BASE_URL}/auth/forgot-password`, { phone: formattedPhone });
       setSuccess(response.data);
       setStep('VERIFY');
     } catch (err) {
@@ -35,7 +36,8 @@ export default function ForgotPassword() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/verify-code`, { phone, code });
+      const formattedPhone = phone.startsWith('+91') ? phone : '+91' + phone.replace(/^91/, '');
+const response = await axios.post(`${API_BASE_URL}/auth/verify-code`, { phone: formattedPhone, code });
       setSuccess(response.data);
       setStep('RESET');
     } catch (err) {
@@ -51,7 +53,7 @@ export default function ForgotPassword() {
     setError('');
     try {
       const response = await axios.post(`${API_BASE_URL}/auth/reset-password`, { 
-        phone, 
+        phone: phone.startsWith('+91') ? phone : '+91' + phone.replace(/^91/, ''), 
         code, 
         newPassword 
       });
@@ -100,11 +102,15 @@ export default function ForgotPassword() {
                   <span className="input-group-text bg-light border-end-0 text-muted" style={{ width: '42px', justifyContent: 'center' }}>
                     <i className="fas fa-phone"></i>
                   </span>
+                  <span className="input-group-text bg-light border-start-0 border-end-0 text-muted fw-bold px-1" style={{ fontSize: '14px' }}>
+                    +91
+                  </span>
                   <input
                     type="tel"
-                    className="form-control border-start-0 bg-white"
-                    placeholder="+919876543210"
-                    value={phone}
+                    className="form-control border-start-0 bg-white ps-1"
+                    placeholder="9876543210"
+                    maxLength="10"
+                    value={phone.replace(/^\+?91/, '')}
                     onChange={(e) => setPhone(e.target.value)}
                     style={{ height: '42px', fontSize: '13px' }}
                     required

@@ -448,7 +448,7 @@ export default function AdminPanel() {
     try {
       const payload = {
         email: editUserEmail,
-        phone: editUserPhone,
+        phone: editUserPhone ? (editUserPhone.startsWith('+91') ? editUserPhone : '+91' + editUserPhone.replace(/^91/, '')) : '',
         roles: editUserRoles.length > 0 ? editUserRoles : undefined,
         enabled: editUserEnabled
       };
@@ -1881,12 +1881,17 @@ export default function AdminPanel() {
                     />
                     
                     <label className="form-label fw-bold text-secondary small mb-1">PHONE NUMBER</label>
-                    <input 
-                      type="text" 
-                      className="form-control mb-3"
-                      value={editUserPhone}
-                      onChange={(e) => setEditUserPhone(e.target.value)}
-                    />
+                    <div className="input-group mb-3">
+                      <span className="input-group-text bg-light text-muted fw-bold">+91</span>
+                      <input 
+                        type="text" 
+                        className="form-control"
+                        maxLength="10"
+                        placeholder="9876543210"
+                        value={editUserPhone ? editUserPhone.replace(/^\+?91/, '') : ''}
+                        onChange={(e) => setEditUserPhone(e.target.value)}
+                      />
+                    </div>
                     
                     <label className="form-label fw-bold text-secondary small mb-1">NEW PASSWORD (Optional)</label>
                     <input 
