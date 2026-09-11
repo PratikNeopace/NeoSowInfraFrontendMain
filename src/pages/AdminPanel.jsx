@@ -434,6 +434,36 @@ export default function AdminPanel() {
     }
   };
 
+  const handleEditUserClick = (user) => {
+    setEditUser(user);
+    setEditUserEmail(user.email || '');
+    setEditUserPhone(user.phone || '');
+    setEditUserPassword('');
+    setEditUserRoles(user.roles || []);
+    setEditUserEnabled(user.enabled !== false);
+  };
+
+  const handleUpdateUser = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        email: editUserEmail,
+        phone: editUserPhone,
+        roles: editUserRoles.length > 0 ? editUserRoles : undefined,
+        enabled: editUserEnabled
+      };
+      if (editUserPassword) {
+        payload.password = editUserPassword;
+      }
+      await API.put(`/admin/users/${editUser.id}`, payload);
+      setEditUser(null);
+      fetchUsers(usersPage);
+      alert('User updated successfully');
+    } catch (error) {
+      alert(error.response?.data?.message || 'Error updating user');
+    }
+  };
+
   const handleCreateUserSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -1826,6 +1856,91 @@ export default function AdminPanel() {
 
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title fw-bold">
+                  <i className="fas fa-user-edit me-2"></i> Edit User
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setEditUser(null)}></button>
+              </div>
+              <form onSubmit={handleUpdateUser}>
+                <div className="modal-body p-4 bg-light">
+                  <div className="bg-white p-3 rounded border shadow-sm mb-3">
+                    <label className="form-label fw-bold text-secondary small mb-1">EMAIL ADDRESS</label>
+                    <input 
+                      type="email" 
+                      className="form-control mb-3"
+                      value={editUserEmail}
+                      onChange={(e) => setEditUserEmail(e.target.value)}
+                      required
+                    />
+                    
+                    <label className="form-label fw-bold text-secondary small mb-1">PHONE NUMBER</label>
+                    <input 
+                      type="text" 
+                      className="form-control mb-3"
+                      value={editUserPhone}
+                      onChange={(e) => setEditUserPhone(e.target.value)}
+                    />
+                    
+                    <label className="form-label fw-bold text-secondary small mb-1">NEW PASSWORD (Optional)</label>
+                    <input 
+                      type="password" 
+                      className="form-control mb-3"
+                      placeholder="Leave blank to keep current password"
+                      value={editUserPassword}
+                      onChange={(e) => setEditUserPassword(e.target.value)}
+                    />
+
+                    <label className="form-label fw-bold text-secondary small mb-1">ROLES</label>
+                    <div className="mb-3">
+                      <div className="form-check form-check-inline">
+                        <input className="form-check-input" type="checkbox" id="editRoleAdmin" 
+                          checked={editUserRoles.includes('ROLE_ADMIN')}
+                          onChange={(e) => {
+                            if (e.target.checked) setEditUserRoles([...editUserRoles, 'ROLE_ADMIN']);
+                            else setEditUserRoles(editUserRoles.filter(r => r !== 'ROLE_ADMIN'));
+                          }}
+                        />
+                        <label className="form-check-label" htmlFor="editRoleAdmin">Admin</label>
+                      </div>
+                      <div className="form-check form-check-inline">
+                        <input className="form-check-input" type="checkbox" id="editRoleUser" 
+                          checked={editUserRoles.includes('ROLE_USER')}
+                          onChange={(e) => {
+                            if (e.target.checked) setEditUserRoles([...editUserRoles, 'ROLE_USER']);
+                            else setEditUserRoles(editUserRoles.filter(r => r !== 'ROLE_USER'));
+                          }}
+                        />
+                        <label className="form-check-label" htmlFor="editRoleUser">User</label>
+                      </div>
+                    </div>
+
+                    <div className="form-check form-switch mt-2">
+                      <input className="form-check-input" type="checkbox" id="editUserStatus" 
+                        checked={editUserEnabled}
+                        onChange={(e) => setEditUserEnabled(e.target.checked)}
+                      />
+                      <label className="form-check-label fw-bold text-secondary small" htmlFor="editUserStatus">
+                        {editUserEnabled ? 'ACCOUNT ACTIVE' : 'ACCOUNT DISABLED'}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div className="modal-footer bg-light border-top-0">
+                  <button type="button" className="btn btn-secondary fw-bold" onClick={() => setEditUser(null)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary fw-bold px-4">Save Changes</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
