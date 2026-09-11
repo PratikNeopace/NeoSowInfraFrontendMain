@@ -23,6 +23,15 @@ export default function AdminPanel() {
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
   const [usersSearch, setUsersSearch] = useState('');
+  
+  // Edit User State
+  const [editUser, setEditUser] = useState(null);
+  const [editUserEmail, setEditUserEmail] = useState('');
+  const [editUserPhone, setEditUserPhone] = useState('');
+  const [editUserPassword, setEditUserPassword] = useState('');
+  const [editUserRoles, setEditUserRoles] = useState([]);
+  const [editUserEnabled, setEditUserEnabled] = useState(true);
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
 
@@ -802,7 +811,7 @@ export default function AdminPanel() {
                                         className="btn btn-link text-secondary p-0 border-0" 
                                         type="button"
                                         title="Edit User"
-                                        onClick={() => alert('Edit profile details feature is under development.')}
+                                        onClick={() => handleEditUserClick(u)}
                                       >
                                         <i className="far fa-edit" style={{ fontSize: '14px' }}></i>
                                       </button>

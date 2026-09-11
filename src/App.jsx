@@ -16,6 +16,7 @@ export default function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
         {/* Private Routes */}
         <Route 
