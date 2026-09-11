@@ -19,7 +19,6 @@ export default function AdminPanel() {
   // New User Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [phone, setPhone] = useState('');
   const [selectedRoles, setSelectedRoles] = useState(['ROLE_USER']);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -60,6 +59,22 @@ export default function AdminPanel() {
   // Imported BOQ Data State
   const [importedItems, setImportedItems] = useState([]);
   const [importedSearch, setImportedSearch] = useState('');
+  const [adminNotifications, setAdminNotifications] = useState([]);
+
+  useEffect(() => {
+    if (activeTab === 'notifications') {
+      const syncNotis = () => {
+        setAdminNotifications(JSON.parse(localStorage.getItem('admin_notifications') || '[]'));
+      };
+      syncNotis();
+      window.addEventListener('storage', syncNotis);
+      const interval = setInterval(syncNotis, 1000);
+      return () => {
+        window.removeEventListener('storage', syncNotis);
+        clearInterval(interval);
+      };
+    }
+  }, [activeTab]);
   const [importedQuotationTypeFilter, setImportedQuotationTypeFilter] = useState('');
   const [importedPage, setImportedPage] = useState(0);
   const [importedTotalPages, setImportedTotalPages] = useState(0);
@@ -384,6 +399,32 @@ export default function AdminPanel() {
     }
   };
 
+  const addAdminNotificationForUserCreation = (newUserEmail, newUserRoles) => {
+    try {
+      const email = localStorage.getItem('userEmail') || 'Admin';
+      const userName = email.split('@')[0];
+      const formattedUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
+      
+      const friendlyRoles = newUserRoles.map(r => r.replace('ROLE_', '')).join(', ');
+
+      const newNotification = {
+        id: `noti-${Date.now()}-${Math.random()}`,
+        message: `New user account created: ${newUserEmail} (${friendlyRoles}) by ${formattedUserName}.`,
+        amount: 0,
+        type: 'USER_CREATION',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        read: false
+      };
+
+      const existingNotis = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+      existingNotis.unshift(newNotification);
+      localStorage.setItem('admin_notifications', JSON.stringify(existingNotis));
+    } catch (e) {
+      console.error('Error adding admin notification for user creation', e);
+    }
+  };
+
   const handleCreateUserSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -408,10 +449,10 @@ export default function AdminPanel() {
         password,
         roles: selectedRoles
       });
+      addAdminNotificationForUserCreation(email, selectedRoles);
       alert('User registered successfully!');
       setEmail('');
       setPassword('');
-      setPhone('');
       setSelectedRoles(['ROLE_USER']);
       fetchUsers(usersPage);
     } catch (err) {
@@ -617,7 +658,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'users' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('users')}
-            style={activeTab === 'users' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'users' ? { backgroundColor: '#174D3A' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-users"></i> Users
           </button>
@@ -626,7 +667,7 @@ export default function AdminPanel() {
             <button 
               className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'admins' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
               onClick={() => setActiveTab('admins')}
-              style={activeTab === 'admins' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
+              style={activeTab === 'admins' ? { backgroundColor: '#174D3A' } : { borderColor: '#e5e7eb' }}
             >
               <i className="fas fa-user-cog"></i> Admins
             </button>
@@ -635,7 +676,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'approvals' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('approvals')}
-            style={activeTab === 'approvals' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'approvals' ? { backgroundColor: '#174D3A' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-list"></i> Approvals
           </button>
@@ -643,7 +684,7 @@ export default function AdminPanel() {
           <button 
             className={`btn rounded px-3 py-2 fw-semibold d-flex align-items-center gap-2 border-0 ${activeTab === 'boq' ? 'btn-primary text-white shadow-sm' : 'bg-white text-secondary border'}`}
             onClick={() => setActiveTab('boq')}
-            style={activeTab === 'boq' ? { backgroundColor: '#006A4E' } : { borderColor: '#e5e7eb' }}
+            style={activeTab === 'boq' ? { backgroundColor: '#174D3A' } : { borderColor: '#e5e7eb' }}
           >
             <i className="fas fa-upload"></i> Import
           </button>
@@ -679,12 +720,11 @@ export default function AdminPanel() {
                         <tbody>
                           {users
                             .filter(u => u.email.toLowerCase().includes(usersSearch.toLowerCase()))
-                            .map((u, index) => {
+                            .map((u) => {
                               // Display formatting
                               const namePart = u.email.split('@')[0];
                               const displayName = namePart.split(/[\._-]/).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
-                              const rowNumber = (usersPage * 10) + index + 1;
-                              const userCode = `#${rowNumber}`;
+                              const userCode = `#USR-${u.id.substring(0, 4).toUpperCase()}`;
 
                               return (
                                 <tr key={u.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
@@ -740,7 +780,7 @@ export default function AdminPanel() {
                                         padding: '4px 10px'
                                       } : {
                                         backgroundColor: '#eff6ff',
-                                        color: '#006A4E',
+                                        color: '#174D3A',
                                         fontSize: '12px',
                                         padding: '4px 10px'
                                       }}
@@ -792,7 +832,7 @@ export default function AdminPanel() {
                               key={idx} 
                               className={`btn btn-sm px-3 rounded ${usersPage === idx ? 'btn-primary' : 'btn-outline-secondary'}`}
                               onClick={() => fetchUsers(idx)}
-                              style={usersPage === idx ? { backgroundColor: '#006A4E' } : {}}
+                              style={usersPage === idx ? { backgroundColor: '#174D3A' } : {}}
                             >
                               {idx + 1}
                             </button>
@@ -858,19 +898,6 @@ export default function AdminPanel() {
                     </div>
 
                     <div className="mb-3">
-                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Phone Number *</label>
-                      <input 
-                        type="text" 
-                        className="form-control" 
-                        placeholder="+919876543210"
-                        style={{ height: '40px', fontSize: '14px' }}
-                        value={phone}
-                        onChange={e => setPhone(e.target.value)}
-                        required 
-                      />
-                    </div>
-
-                    <div className="mb-3">
                       <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Password *</label>
                       <input 
                         type="password" 
@@ -914,7 +941,7 @@ export default function AdminPanel() {
                       type="submit" 
                       className="btn btn-primary w-100 fw-bold py-2" 
                       disabled={formLoading}
-                      style={{ backgroundColor: '#006A4E', border: 'none', height: '44px' }}
+                      style={{ backgroundColor: '#174D3A', border: 'none', height: '44px' }}
                     >
                       {formLoading ? 'Registering...' : 'Register User'}
                     </button>
@@ -1211,21 +1238,21 @@ export default function AdminPanel() {
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('import')}
-                    style={boqSubTab === 'import' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'import' ? { backgroundColor: '#174D3A', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📊 Excel Upload & Import Log
                   </button>
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('manual')}
-                    style={boqSubTab === 'manual' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'manual' ? { backgroundColor: '#174D3A', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     ➕ Add Single BOQ Item
                   </button>
                   <button
                     className="btn btn-sm px-3 py-1.5 rounded fw-semibold border-0"
                     onClick={() => setBoqSubTab('imported_data')}
-                    style={boqSubTab === 'imported_data' ? { backgroundColor: '#006A4E', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
+                    style={boqSubTab === 'imported_data' ? { backgroundColor: '#174D3A', color: '#ffffff' } : { color: '#4b5563', backgroundColor: 'transparent' }}
                   >
                     📚 Imported DATA
                   </button>
@@ -1340,7 +1367,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2 mb-3"
                           disabled={uploadLoading}
-                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#174D3A', border: 'none', borderRadius: '8px' }}
                         >
                           {uploadLoading ? 'Uploading...' : 'Upload & Process'}
                         </button>
@@ -1478,7 +1505,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-100 fw-bold py-2" 
                           disabled={manualSubmitting}
-                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#174D3A', border: 'none', borderRadius: '8px' }}
                         >
                           {manualSubmitting ? 'Saving...' : 'Add BOQ Item'}
                         </button>
@@ -1776,7 +1803,7 @@ export default function AdminPanel() {
                           type="submit" 
                           className="btn btn-primary w-50 fw-bold"
                           disabled={updatingItem}
-                          style={{ backgroundColor: '#006A4E', border: 'none', borderRadius: '8px' }}
+                          style={{ backgroundColor: '#174D3A', border: 'none', borderRadius: '8px' }}
                         >
                           {updatingItem ? 'Saving...' : 'Save Changes'}
                         </button>

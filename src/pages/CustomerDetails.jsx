@@ -150,6 +150,30 @@ export default function CustomerDetails() {
     }
   };
 
+  const addAdminNotificationForCustomer = (customerName, workType) => {
+    try {
+      const email = localStorage.getItem('userEmail') || 'User';
+      const userName = email.split('@')[0];
+      const formattedUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
+      
+      const newNotification = {
+        id: `noti-${Date.now()}-${Math.random()}`,
+        message: `New customer registered: ${customerName} (Project: ${workType || 'General'}) by ${formattedUserName}.`,
+        amount: 0,
+        type: 'CUSTOMER_CREATION',
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        read: false
+      };
+
+      const existingNotis = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+      existingNotis.unshift(newNotification);
+      localStorage.setItem('admin_notifications', JSON.stringify(existingNotis));
+    } catch (e) {
+      console.error('Error adding admin notification for customer', e);
+    }
+  };
+
   const handleSubmit = async (e, saveAsDraft = false) => {
     if (e) e.preventDefault();
     setLoading(true);
@@ -182,6 +206,7 @@ export default function CustomerDetails() {
         navigate('/quotations');
       } else {
         const res = await API.post('/customers', payload);
+        addAdminNotificationForCustomer(payload.name, payload.project?.workType);
         const newCustomerId = res.data.id;
         alert(saveAsDraft ? 'Customer details saved as Draft!' : 'Customer details saved successfully!');
         if (saveAsDraft) {
@@ -223,11 +248,12 @@ export default function CustomerDetails() {
         <div className="card border-0 shadow-sm bg-white mx-auto overflow-hidden mb-5" style={{ borderRadius: '16px', width: '100%' }}>
           
           {/* Main Card Header */}
-          <div className="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+          <div className="card-header bg-white border-bottom p-4 
+          d-flex justify-content-between align-items-center">
             <div className="d-flex align-items-center gap-3">
               <div 
                 className="rounded-circle d-flex align-items-center justify-content-center bg-primary-subtle" 
-                style={{ width: '48px', height: '48px', color: '#006A4E' }}
+                style={{ width: '48px', height: '48px', color: '#174D3A' }}
               >
                 <i className="fas fa-user-plus fs-5"></i>
               </div>
@@ -273,7 +299,7 @@ export default function CustomerDetails() {
                     <div className="position-relative">
                       <input 
                         type="tel" 
-                        className="form-control ps-5 border" 
+                         className="form-control ps-5 border" 
                         placeholder="Enter Phone Number" 
                         value={phone} 
                         onChange={e => setPhone(e.target.value)} 
@@ -608,7 +634,7 @@ export default function CustomerDetails() {
                       type="submit" 
                       className="btn btn-primary px-4 py-2 fw-semibold" 
                       disabled={loading}
-                      style={{ borderRadius: '8px', height: '42px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
+                      style={{ borderRadius: '8px', height: '42px', fontSize: '14px', backgroundColor: '#174D3A', border: 'none' }}
                     >
                       {loading ? (
                         <>

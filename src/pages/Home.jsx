@@ -18,14 +18,14 @@ export default function Home() {
 
   // Today's Focus states
   const [focusItems, setFocusItems] = useState([
-    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#006A4E', completed: false, date: new Date().toISOString().split('T')[0], time: '11:00' },
-    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#d1e7e2', completed: false, date: new Date().toISOString().split('T')[0], time: '17:00' },
+    { title: 'Follow up: Patel Residence', sub: 'Review tile feedback', color: '#174D3A', completed: false, date: new Date().toISOString().split('T')[0], time: '11:00' },
+    { title: 'Prepare BOQ: Villa Project', sub: 'Due by 5:00 PM', color: '#3b82f6', completed: false, date: new Date().toISOString().split('T')[0], time: '17:00' },
     { title: 'Site Visit: Lofts', sub: 'Today at 3:00 PM', color: '#f59e0b', completed: false, date: new Date().toISOString().split('T')[0], time: '15:00' }
   ]);
   const [showFocusModal, setShowFocusModal] = useState(false);
   const [newFocusTitle, setNewFocusTitle] = useState('');
   const [newFocusSub, setNewFocusSub] = useState('');
-  const [newFocusColor, setNewFocusColor] = useState('#006A4E');
+  const [newFocusColor, setNewFocusColor] = useState('#174D3A');
   const [newFocusDate, setNewFocusDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [newFocusTime, setNewFocusTime] = useState(() => {
     const now = new Date();
@@ -61,7 +61,7 @@ export default function Home() {
     ]);
     setNewFocusTitle('');
     setNewFocusSub('');
-    setNewFocusColor('#006A4E');
+    setNewFocusColor('#174D3A');
     setNewFocusDate(new Date().toISOString().split('T')[0]);
     setNewFocusTime(() => {
       const now = new Date();
@@ -311,7 +311,7 @@ export default function Home() {
             <Link 
               to="/customer-details" 
               className="btn btn-primary btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2"
-              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
+              style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#174D3A', border: 'none' }}
             >
               <i className="fas fa-plus"></i> New Quotation
             </Link>
@@ -377,7 +377,7 @@ export default function Home() {
             <div className="card border-0 shadow-sm p-4 bg-white h-100" style={{ borderRadius: '12px' }}>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>Recent Quotations</h4>
-                <Link to="/quotations" className="text-decoration-none fw-semibold" style={{ fontSize: '13px', color: '#006A4E' }}>View all</Link>
+                <Link to="/quotations" className="text-decoration-none fw-semibold" style={{ fontSize: '13px', color: '#174D3A' }}>View all</Link>
               </div>
 
               {loadingQuotes ? (
@@ -448,101 +448,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Today's Focus Section */}
+          {/* Revenue Trend Visual Bar Chart */}
           <div className="col-lg-4">
             <div className="card border-0 shadow-sm p-4 bg-white h-100" style={{ borderRadius: '12px' }}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>Today's Focus</h4>
-                <button className="btn btn-link p-0 text-primary" style={{ fontSize: '16px' }} onClick={() => setShowFocusModal(true)}>
-                  <i className="far fa-plus-square"></i>
-                </button>
-              </div>
-
-              <div className="d-flex flex-column gap-2 mb-4 mt-2" style={{ maxHeight: '260px', overflowY: 'auto', paddingRight: '4px' }}>
-                {focusItems.length === 0 ? (
-                  <p className="text-secondary small text-center py-4 my-0">No focus items. Add one above!</p>
-                ) : (
-                  focusItems.map((item, index) => (
-                    <div key={index} className="d-flex justify-content-between align-items-center p-2 rounded hover-focus-item" style={{ transition: 'all 0.2s', border: '1px solid #f1f5f9' }}>
-                      <div className="d-flex gap-3 align-items-start" style={{ overflow: 'hidden' }}>
-                        <span 
-                          onClick={() => toggleCompleteFocusItem(index)}
-                          style={{ 
-                            cursor: 'pointer',
-                            marginTop: '4px',
-                            display: 'inline-block'
-                          }}
-                        >
-                          {item.completed ? (
-                            <i className="fas fa-check-circle text-success" style={{ fontSize: '13px' }}></i>
-                          ) : (
-                            <span className="d-inline-block rounded-circle" style={{ backgroundColor: item.color, width: '10px', height: '10px' }} />
-                          )}
-                        </span>
-                        <div style={{ overflow: 'hidden' }}>
-                          <h6 className="fw-bold mb-1" style={{ 
-                            fontSize: '13px', 
-                            color: item.completed ? '#94a3b8' : '#1e293b',
-                            textDecoration: item.completed ? 'line-through' : 'none',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}>{item.title}</h6>
-                          <p className="mb-0 text-secondary" style={{ 
-                            fontSize: '11px',
-                            textDecoration: item.completed ? 'line-through' : 'none',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                          }}>{item.sub}</p>
-                          {(item.date || item.time) && (
-                            <span className="text-muted d-flex align-items-center gap-1 mt-1 font-monospace" style={{ fontSize: '10px' }}>
-                              <i className="far fa-calendar-alt text-secondary"></i>
-                              {item.date ? new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : ''}
-                              {item.time ? ` @ ${item.time}` : ''}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="d-flex gap-1 flex-shrink-0 ms-2">
-                        <button 
-                          className="btn btn-link p-1 text-secondary" 
-                          style={{ fontSize: '12px' }}
-                          onClick={() => toggleCompleteFocusItem(index)}
-                          title={item.completed ? "Mark Active" : "Mark Done"}
-                        >
-                          <i className={`fas ${item.completed ? 'fa-undo-alt' : 'fa-check'} text-muted`}></i>
-                        </button>
-                        <button 
-                          className="btn btn-link p-1 text-danger" 
-                          style={{ fontSize: '12px' }}
-                          onClick={() => handleDeleteFocusItem(index)}
-                          title="Delete Focus"
-                        >
-                          <i className="far fa-trash-alt"></i>
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              <button 
-                className="btn btn-primary-subtle text-primary fw-bold w-100 py-2 border-0 mt-auto" 
-                style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#eff6ff' }}
-                onClick={() => setShowCalendarModal(true)}
-              >
-                Open Calendar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom Block Grid */}
-        <div className="row g-4">
-          {/* Revenue Trend Visual Bar Chart */}
-          <div className="col-12">
-            <div className="card border-0 shadow-sm p-4 bg-white" style={{ borderRadius: '12px' }}>
               <div className="d-flex justify-content-between align-items-start mb-4">
                 <div>
                   <h4 className="fw-bold text-dark mb-0" style={{ fontSize: '18px' }}>Revenue Trend</h4>
@@ -555,7 +463,7 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="mx-auto w-100" style={{ maxWidth: '640px' }}>
+              <div className="mx-auto w-100">
                 <div className="d-flex align-items-end justify-content-between px-2" style={{ height: '180px', position: 'relative' }}>
                   {/* Subtle Grid Lines */}
                   <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 25, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', pointerEvents: 'none' }}>
@@ -566,11 +474,11 @@ export default function Home() {
                   </div>
 
                   {revenueTrend.map((bar, i) => (
-                    <div key={i} className="d-flex flex-column align-items-center justify-content-end" style={{ height: '100%', zIndex: 1, width: '60px' }}>
+                    <div key={i} className="d-flex flex-column align-items-center justify-content-end" style={{ height: '100%', zIndex: 1, flex: 1, minWidth: '40px' }}>
                       <div className="rounded-top" style={{ 
                         height: bar.height, 
                         width: '28px',
-                        backgroundColor: bar.active ? '#006A4E' : '#d1e7e2', 
+                        backgroundColor: bar.active ? '#174D3A' : '#dbeafe', 
                         transition: 'all 0.3s ease',
                         cursor: 'pointer'
                       }} title={`${bar.month}: ₹${bar.revenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
@@ -660,8 +568,8 @@ export default function Home() {
                 <label className="form-label fw-semibold text-secondary d-block mb-2" style={{ fontSize: '13px' }}>Category Color</label>
                 <div className="d-flex gap-2">
                   {[
-                    { value: '#006A4E', name: 'Green (Task)' },
-                    { value: '#d1e7e2', name: 'Light Green (Prep)' },
+                    { value: '#174D3A', name: 'Blue (Task)' },
+                    { value: '#3b82f6', name: 'Light Blue (Prep)' },
                     { value: '#f59e0b', name: 'Orange (Site Visit)' },
                     { value: '#10b981', name: 'Green (Completed)' },
                     { value: '#ef4444', name: 'Red (Urgent)' }
@@ -699,7 +607,7 @@ export default function Home() {
                 <button 
                   type="submit" 
                   className="btn btn-primary px-4 py-2 fw-semibold" 
-                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#006A4E', border: 'none' }}
+                  style={{ borderRadius: '8px', fontSize: '13px', backgroundColor: '#174D3A', border: 'none' }}
                 >
                   Add Item
                 </button>
@@ -764,13 +672,13 @@ export default function Home() {
                       padding: '6px 0',
                       borderRadius: '8px',
                       cursor: 'pointer',
-                      backgroundColor: isSelected ? '#006A4E' : 'transparent',
+                      backgroundColor: isSelected ? '#174D3A' : 'transparent',
                       color: isSelected 
                         ? '#fff' 
                         : dayObj.isCurrentMonth 
                           ? '#1e293b' 
                           : '#cbd5e1',
-                      border: isToday && !isSelected ? '1px solid #006A4E' : 'none',
+                      border: isToday && !isSelected ? '1px solid #174D3A' : 'none',
                       transition: 'all 0.15s ease',
                       position: 'relative'
                     }}

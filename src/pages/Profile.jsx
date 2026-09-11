@@ -114,7 +114,7 @@ export default function Profile() {
             <div className="card border-0 shadow-sm text-center p-4 bg-white" style={{ borderRadius: '16px' }}>
               <div className="position-relative d-inline-block mx-auto mb-3">
                 <img 
-                  src={`https://ui-avatars.com/api/?name=${userName}&background=2563eb&color=fff&rounded=true&size=120`} 
+                  src={`https://ui-avatars.com/api/?name=${userName}&background=174D3A&color=fff&rounded=true&size=120`} 
                   alt="Avatar" 
                   style={{ width: '120px', height: '120px', borderRadius: '50%' }}
                 />
@@ -235,7 +235,7 @@ export default function Profile() {
                   type="submit" 
                   disabled={loading}
                   className="btn btn-primary px-4 py-2 fw-semibold" 
-                  style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#006A4E', border: 'none' }}
+                  style={{ borderRadius: '8px', fontSize: '14px', backgroundColor: '#174D3A', border: 'none' }}
                 >
                   {loading ? 'Updating...' : 'Update Password'}
                 </button>

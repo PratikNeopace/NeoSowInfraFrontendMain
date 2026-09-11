@@ -22,9 +22,7 @@ export default function QuotationBuilder() {
 
   // Table & Form State
   const [projectUnit, setProjectUnit] = useState('Ft Inch');
-  const [items, setItems] = useState([
-    { id: '1', category: '', subcategory: '', otherCategory: '', otherSubcategory: '', subCheckboxes: [], description: '', width: '', height: '', depth: '', unit: 'SQ.FT.', qty: 0, noOfUnit: 1, totalQty: 0, unitRate: 0, amount: 0, selected: true, imageUrl: '' }
-  ]);
+  const [items, setItems] = useState([]);
   const [discountType, setDiscountType] = useState('flat'); // 'flat' or 'percent'
   const [discountInputVal, setDiscountInputVal] = useState(0);
   const [includeGst, setIncludeGst] = useState(true);
@@ -226,9 +224,21 @@ export default function QuotationBuilder() {
 
     if (!isNaN(s) && !s.includes("'") && !s.includes('"')) {
       if (projectUnit === 'Ft Inch') {
-        const decimalVal = parseFloat(s);
-        feet = Math.floor(decimalVal);
-        inches = (decimalVal - feet) * 12;
+        if (s.includes('.')) {
+          const parts = s.split('.');
+          feet = parseInt(parts[0], 10) || 0;
+          const inchVal = parseInt(parts[1], 10) || 0;
+          if (inchVal > 12) {
+            const decimalVal = parseFloat(s);
+            feet = Math.floor(decimalVal);
+            inches = Math.round((decimalVal - feet) * 12);
+          } else {
+            inches = inchVal;
+          }
+        } else {
+          feet = parseInt(s, 10) || 0;
+          inches = 0;
+        }
         isFtInch = true;
       } else {
         return parseFloat(s);
@@ -321,6 +331,15 @@ export default function QuotationBuilder() {
   };
 
   const handleCellChange = (id, field, value) => {
+    if (['noOfUnit', 'unitRate'].includes(field)) {
+      if (parseFloat(value) < 0) {
+        value = '0';
+      }
+    } else if (['width', 'height', 'depth'].includes(field)) {
+      if (value && value.toString().includes('-')) {
+        value = value.toString().replace(/-/g, '');
+      }
+    }
     setUnitLocked(true);
     setItems(prev => prev.map(item => {
       if (item.id === id) {
@@ -610,6 +629,30 @@ export default function QuotationBuilder() {
     };
   };
 
+  const addAdminNotification = (payload) => {
+    try {
+      const email = localStorage.getItem('userEmail') || 'User';
+      const userName = email.split('@')[0];
+      const formattedUserName = userName.charAt(0).toUpperCase() + userName.slice(1);
+      
+      const newNotification = {
+        id: `noti-${Date.now()}-${Math.random()}`,
+        message: `New quotation created for ${customer?.name || 'Customer'} (Project Unit: ${payload.projectUnit}) by ${formattedUserName}.`,
+        amount: payload.totalAmount,
+        type: payload.quotationType,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        read: false
+      };
+
+      const existingNotis = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+      existingNotis.unshift(newNotification);
+      localStorage.setItem('admin_notifications', JSON.stringify(existingNotis));
+    } catch (e) {
+      console.error('Error adding admin notification', e);
+    }
+  };
+
   const handleSaveQuotation = async () => {
     const payload = preparePayload();
     if (payload.items.length === 0) {
@@ -620,6 +663,7 @@ export default function QuotationBuilder() {
     setSubmitting(true);
     try {
       await API.post('/quotations', payload);
+      addAdminNotification(payload);
       alert('Quotation saved successfully!');
       navigate('/quotations');
     } catch (err) {
@@ -651,6 +695,7 @@ export default function QuotationBuilder() {
     try {
       // First save to obtain ID, then request pdf download from backend
       const saveRes = await API.post('/quotations', payload);
+      addAdminNotification(payload);
       const quoteId = saveRes.data.id;
 
       const pdfRes = await API.get(`/quotations/${quoteId}/pdf`, { responseType: 'blob' });
@@ -670,7 +715,7 @@ export default function QuotationBuilder() {
   if (loadingQuotation) {
     return (
       <div style={{
-        background: 'linear-gradient(135deg, #006A4E 0%, #004d39 100%)',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
         minHeight: '100vh',
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
       }}>
@@ -777,6 +822,7 @@ export default function QuotationBuilder() {
                   className="form-select form-select-sm"
                   style={{ width: '220px', borderRadius: '8px' }}
                   value={quotationType}
+                  disabled
                   onChange={(e) => {
                     setQuotationType(e.target.value);
                     fetchApprovedItems(e.target.value);
@@ -1119,6 +1165,7 @@ export default function QuotationBuilder() {
                                       className="form-control border text-center" 
                                       value={item.noOfUnit}
                                       onChange={(e) => handleCellChange(item.id, 'noOfUnit', e.target.value)}
+                                      min="0"
                                       style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
                                     />
                                   </div>
@@ -1134,6 +1181,7 @@ export default function QuotationBuilder() {
                                           className="form-control border" 
                                           value={item.unitRate}
                                           onChange={(e) => handleCellChange(item.id, 'unitRate', e.target.value)}
+                                          min="0"
                                           style={{ height: '40px', borderRadius: '6px', fontSize: '13px' }}
                                         />
                                       </div>
@@ -1167,7 +1215,7 @@ export default function QuotationBuilder() {
                                       type="button" 
                                       className="btn btn-primary px-4" 
                                       onClick={() => toggleEditItem(item.id)}
-                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', backgroundColor: '#006A4E', border: 'none' }}
+                                      style={{ borderRadius: '8px', fontSize: '13px', fontWeight: '600', backgroundColor: '#174D3A', border: 'none' }}
                                     >
                                       Save Item
                                     </button>
@@ -1184,11 +1232,7 @@ export default function QuotationBuilder() {
               </table>
             </div>
 
-            <div className="d-flex justify-content-center py-2 border-top">
-              <button type="button" className="btn btn-light border fw-semibold px-4 text-secondary small" onClick={addRow} style={{ borderRadius: '8px' }}>
-                + Add New Item
-              </button>
-            </div>
+
           </div>
 
           {/* Summary Details */}
@@ -1279,7 +1323,7 @@ export default function QuotationBuilder() {
                 className="btn btn-primary fw-semibold py-2 px-4" 
                 onClick={handleSaveQuotation}
                 disabled={submitting}
-                style={{ borderRadius: '8px', backgroundColor: '#006A4E', border: 'none' }}
+                style={{ borderRadius: '8px', backgroundColor: '#174D3A', border: 'none' }}
               >
                 {submitting ? <span className="spinner-border spinner-border-sm me-1"></span> : <i className="fas fa-save me-1"></i>}
                 {parentQuotationId ? 'Save & Go Back' : 'Save & Go Back'}
