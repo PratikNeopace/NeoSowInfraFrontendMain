@@ -221,7 +221,7 @@ export default function Login() {
                   <label className="form-label text-secondary fw-bold mb-0" style={{ fontSize: '11px', letterSpacing: '0.05em' }}>PASSWORD</label>
                   <a 
                     href="#" 
-                    onClick={(e) => { e.preventDefault(); alert('Password reset feature coming soon!'); }} 
+                    onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); }} 
                     className="text-decoration-none fw-bold"
                     style={{ color: '#174D3A', fontSize: '11px' }}
                   >
