@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../services/config';
 import loginImage from '../assets/login_screen.jpg';
+import logo from '../assets/logo.svg';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -176,7 +177,7 @@ export default function Login() {
           
           {/* Main Logo */}
           <div className="text-center mb-5">
-            <img src="/src/assets/logo.svg" alt="NEO SOW INFRA" style={{ height: '70px' }} />
+            <img src={logo} alt="NEO SOW INFRA" style={{ height: '70px' }} />
           </div>
 
           {/* Form Container */}
