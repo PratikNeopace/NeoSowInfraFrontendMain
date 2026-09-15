@@ -50,17 +50,17 @@ export default function QuotationView() {
       return;
     }
     
-    setWaSending(true);
-    try {
-      await API.post(`/quotations/${quoteId}/whatsapp?targetPhone=${encodeURIComponent(finalPhone)}`);
-      alert('Quotation sent to WhatsApp successfully!');
-      setShowWaModal(false);
-    } catch (err) {
-      console.error('Failed to send WhatsApp', err);
-      alert(err.response?.data?.message || err.response?.data || 'Failed to send WhatsApp message.');
-    } finally {
-      setWaSending(false);
-    }
+    // Format to 91XXXXXXXXXX
+    let cleanPhone = finalPhone.replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+    
+    const grandTotal = quotation.totalAmount ? quotation.totalAmount.toFixed(2) : '0.00';
+    const messageBody = `Dear ${customer.name}, your estimation sheet / quotation from NeoSow Infra has been generated.\n\nQuotation ID: ${quotation.id}\nGrand Total: Rs. ${grandTotal}\n\nYou can view and export the details here: https://www.neosowinfra.com/quotations/${quotation.id}\n\nThank you,\nNeoSow Team`;
+    
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageBody)}`;
+    window.open(waUrl, '_blank');
+    
+    setShowWaModal(false);
   };
 
   const handleDownloadPdf = async () => {
