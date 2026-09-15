@@ -19,6 +19,7 @@ export default function AdminPanel() {
   // New User Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [newUserPhone, setNewUserPhone] = useState('');
   const [selectedRoles, setSelectedRoles] = useState(['ROLE_USER']);
   const [formLoading, setFormLoading] = useState(false);
   const [formError, setFormError] = useState('');
@@ -468,6 +469,10 @@ export default function AdminPanel() {
     e.preventDefault();
     setFormError('');
 
+    if (!newUserPhone) {
+      setFormError('Phone number is required');
+      return;
+    }
     if (!email) {
       setFormError('Email is required');
       return;
@@ -486,12 +491,14 @@ export default function AdminPanel() {
       await API.post('/admin/users', {
         email,
         password,
+        phone: newUserPhone ? (newUserPhone.startsWith('+91') ? newUserPhone : '+91' + newUserPhone.replace(/^\+?91/, '')) : '',
         roles: selectedRoles
       });
       addAdminNotificationForUserCreation(email, selectedRoles);
       alert('User registered successfully!');
       setEmail('');
       setPassword('');
+      setNewUserPhone('');
       setSelectedRoles(['ROLE_USER']);
       fetchUsers(usersPage);
     } catch (err) {
@@ -934,6 +941,23 @@ export default function AdminPanel() {
                         onChange={e => setEmail(e.target.value)}
                         required 
                       />
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="form-label text-secondary fw-semibold mb-1" style={{ fontSize: '12px' }}>Phone Number *</label>
+                      <div className="input-group">
+                        <span className="input-group-text bg-light border-end-0 text-muted fw-bold px-2">+91</span>
+                        <input 
+                          type="tel" 
+                          className="form-control border-start-0 ps-1"
+                          maxLength="10"
+                          placeholder="9876543210"
+                          style={{ height: '40px', fontSize: '14px' }}
+                          value={newUserPhone.replace(/^\+?91/, '')}
+                          onChange={e => setNewUserPhone(e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
 
                     <div className="mb-3">
