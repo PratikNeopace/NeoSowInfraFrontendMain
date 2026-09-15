@@ -12,6 +12,11 @@ export default function QuotationView() {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
 
+  const [showWaModal, setShowWaModal] = useState(false);
+  const [waSending, setWaSending] = useState(false);
+  const [selectedPhone, setSelectedPhone] = useState('');
+  const [customPhone, setCustomPhone] = useState('');
+
   useEffect(() => {
     const fetchQuotationData = async () => {
       setLoading(true);
@@ -31,6 +36,32 @@ export default function QuotationView() {
     };
     fetchQuotationData();
   }, [quoteId, navigate]);
+
+  const handleOpenWaModal = () => {
+    setSelectedPhone(customer.phone);
+    setCustomPhone('');
+    setShowWaModal(true);
+  };
+
+  const handleSendWhatsApp = async () => {
+    let finalPhone = selectedPhone === 'custom' ? customPhone : selectedPhone;
+    if (!finalPhone) {
+      alert('Please select or enter a valid phone number.');
+      return;
+    }
+    
+    setWaSending(true);
+    try {
+      await API.post(`/quotations/${quoteId}/whatsapp?targetPhone=${encodeURIComponent(finalPhone)}`);
+      alert('Quotation sent to WhatsApp successfully!');
+      setShowWaModal(false);
+    } catch (err) {
+      console.error('Failed to send WhatsApp', err);
+      alert(err.response?.data?.message || err.response?.data || 'Failed to send WhatsApp message.');
+    } finally {
+      setWaSending(false);
+    }
+  };
 
   const handleDownloadPdf = async () => {
     setDownloading(true);
@@ -88,6 +119,13 @@ export default function QuotationView() {
                     <i className="fas fa-file-pdf"></i>
                   )}
                   Export PDF
+                </button>
+                <button 
+                  className="btn btn-success btn-sm px-4 py-2 fw-semibold d-flex align-items-center gap-2 ms-2" 
+                  style={{ borderRadius: '8px', fontSize: '13px', border: 'none', backgroundColor: '#25D366' }}
+                  onClick={handleOpenWaModal} 
+                >
+                  <i className="fab fa-whatsapp"></i> Share WhatsApp
                 </button>
               </div>
 
@@ -207,6 +245,85 @@ export default function QuotationView() {
 
         </div>
       </div>
+
+      {/* WhatsApp Share Modal */}
+      {showWaModal && customer && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content border-0 shadow">
+              <div className="modal-header bg-success text-white">
+                <h5 className="modal-title fw-bold">
+                  <i className="fab fa-whatsapp me-2"></i> Share via WhatsApp
+                </h5>
+                <button type="button" className="btn-close btn-close-white" onClick={() => setShowWaModal(false)}></button>
+              </div>
+              <div className="modal-body p-4 bg-light">
+                <p className="text-secondary small mb-3">Select the number to send the quotation PDF link to:</p>
+                
+                <div className="form-check mb-2">
+                  <input className="form-check-input" type="radio" name="phoneOptions" id="phonePrimary" 
+                    checked={selectedPhone === customer.phone}
+                    onChange={() => setSelectedPhone(customer.phone)}
+                  />
+                  <label className="form-check-label fw-bold" htmlFor="phonePrimary">
+                    {customer.name} (Primary) - {customer.phone}
+                  </label>
+                </div>
+
+                {customer.familyMembers && customer.familyMembers.length > 0 && customer.familyMembers.map((fm, idx) => {
+                  if (!fm.contact) return null;
+                  return (
+                    <div className="form-check mb-2" key={idx}>
+                      <input className="form-check-input" type="radio" name="phoneOptions" id={`phoneFm${idx}`} 
+                        checked={selectedPhone === fm.contact}
+                        onChange={() => setSelectedPhone(fm.contact)}
+                      />
+                      <label className="form-check-label" htmlFor={`phoneFm${idx}`}>
+                        {fm.name} ({fm.type}) - {fm.contact}
+                      </label>
+                    </div>
+                  );
+                })}
+
+                <div className="form-check mb-2">
+                  <input className="form-check-input" type="radio" name="phoneOptions" id="phoneCustom" 
+                    checked={selectedPhone === 'custom'}
+                    onChange={() => setSelectedPhone('custom')}
+                  />
+                  <label className="form-check-label" htmlFor="phoneCustom">
+                    Other Number...
+                  </label>
+                </div>
+
+                {selectedPhone === 'custom' && (
+                  <div className="mt-2 ms-4">
+                    <div className="input-group">
+                      <span className="input-group-text bg-white text-muted fw-bold">+91</span>
+                      <input 
+                        type="tel" 
+                        className="form-control"
+                        placeholder="9876543210"
+                        maxLength="10"
+                        value={customPhone.replace(/^\+?91/, '')}
+                        onChange={(e) => setCustomPhone(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+              </div>
+              <div className="modal-footer bg-light border-top-0">
+                <button type="button" className="btn btn-secondary fw-bold" onClick={() => setShowWaModal(false)}>Cancel</button>
+                <button type="button" className="btn btn-success fw-bold px-4" onClick={handleSendWhatsApp} disabled={waSending}>
+                  {waSending ? <span className="spinner-border spinner-border-sm me-2"></span> : <i className="fas fa-paper-plane me-2"></i>}
+                  Send WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
