@@ -37,8 +37,10 @@ export default function QuotationBuilder() {
   const [loadingQuotation, setLoadingQuotation] = useState(false);
   const [approvedItems, setApprovedItems] = useState([]);
   const [quotationType, setQuotationType] = useState('BUDGET_QUOTE');
+  const [loadingApproved, setLoadingApproved] = useState(false);
 
   const fetchApprovedItems = async (qType) => {
+    setLoadingApproved(true);
     try {
       const boqRes = await API.get('/boq/approved', {
         params: { quotationType: qType }
@@ -57,6 +59,8 @@ export default function QuotationBuilder() {
     } catch (err) {
       console.error('Failed to fetch approved BOQ categories', err);
       return [];
+    } finally {
+      setLoadingApproved(false);
     }
   };
 
@@ -822,17 +826,22 @@ export default function QuotationBuilder() {
                   className="form-select form-select-sm"
                   style={{ width: '220px', borderRadius: '8px' }}
                   value={quotationType}
-                  disabled
+                  disabled={loadingApproved}
                   onChange={(e) => {
-                    setQuotationType(e.target.value);
-                    fetchApprovedItems(e.target.value);
+                    const newType = e.target.value;
+                    setQuotationType(newType);
+                    fetchApprovedItems(newType);
                   }}
                 >
                   <option value="BUDGET_QUOTE">Budget Quote</option>
                   <option value="PREMIUM_RANGE_QUOTE">Premium Range Quote</option>
                   <option value="ULTRA_LUXURY_QUOTE">Ultra Luxury Quote</option>
                 </select>
-                <span className="text-secondary small ms-2"><i className="fas fa-info-circle me-1"></i> Filters items to selected price category</span>
+                {loadingApproved ? (
+                  <span className="spinner-border spinner-border-sm text-primary" role="status"></span>
+                ) : (
+                  <span className="text-secondary small ms-2"><i className="fas fa-info-circle me-1"></i> Filters items to selected price category</span>
+                )}
               </div>
             </div>
           ) : null}
