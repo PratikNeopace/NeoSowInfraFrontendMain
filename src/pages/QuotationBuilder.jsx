@@ -188,9 +188,9 @@ export default function QuotationBuilder() {
 
   // Unit Options Heuristic
   const getUnitOptions = (mode) => {
-    if (mode === 'Meter & MM') return ['SQ.MTR.', 'R.MTR.', 'CU.MTR.', 'NUMBER', 'JOB', 'Others'];
-    if (mode === 'Kgs') return ['KGS', 'NUMBER', 'JOB', 'Others'];
-    return ['SQ.FT.', 'R.FT.', 'CU.FT.', 'NUMBER', 'JOB', 'Others'];
+    if (mode === 'Meter & MM') return ['SQ.MTR.', 'R.MTR.', 'CU.MTR.', 'NUMBER', 'JOB'];
+    if (mode === 'Kgs') return ['KGS', 'NUMBER', 'JOB'];
+    return ['SQ.FT.', 'R.FT.', 'CU.FT.', 'NUMBER', 'JOB'];
   };
 
   // Sync default units on project mode toggle
@@ -794,7 +794,7 @@ export default function QuotationBuilder() {
               <div className="border-top pt-4 d-flex align-items-center gap-3">
                 <span className="fw-bold text-dark mb-0 small me-2">Project Unit Model:</span>
                 <div className="d-flex align-items-center gap-2">
-                  {['Ft Inch', 'Meter & MM', 'Kgs', 'Others'].map((mode) => (
+                  {['Ft Inch', 'Meter & MM', 'Kgs'].map((mode) => (
                     <div key={mode} className="form-check form-check-inline mb-0 p-0">
                       <input 
                         className="form-check-input d-none" 
