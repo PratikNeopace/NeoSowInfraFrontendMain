@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../services/config';
+import logo from '../assets/logo.svg';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -247,7 +248,7 @@ export default function Login() {
 
         {/* Brand/Logo Top Left (Small Version) */}
         <div className="position-relative" style={{ zIndex: 2 }}>
-          <img src="/src/assets/logo.svg" alt="Logo" style={{ height: '40px', filter: 'brightness(0.9) contrast(1.2)' }} />
+          <img src={logo} alt="Logo" style={{ height: '40px', filter: 'brightness(0.9) contrast(1.2)' }} />
         </div>
 
         {/* Middle Value Props */}
@@ -308,7 +309,7 @@ export default function Login() {
           
           {/* Main Logo */}
           <div className="text-center mb-5">
-            <img src="/src/assets/logo.svg" alt="NEO SOW INFRA" style={{ height: '70px' }} />
+            <img src={logo} alt="NEO SOW INFRA" style={{ height: '70px' }} />
           </div>
 
           {/* Form Container */}
